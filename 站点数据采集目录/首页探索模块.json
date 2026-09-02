@@ -1,0 +1,42 @@
+{
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "label": "",
+      "title": "",
+      "description": "",
+      "actions": []
+    },
+    "status": {
+      "enabled": false,
+      "items": []
+    },
+    "facts": {
+      "enabled": false,
+      "label": "",
+      "items": []
+    },
+    "story": {
+      "enabled": false,
+      "label": "",
+      "title": "",
+      "description": "",
+      "image": "",
+      "articleTarget": null
+    },
+    "release": {
+      "enabled": false,
+      "label": "",
+      "title": "",
+      "description": "",
+      "articleTargets": []
+    },
+    "index": {
+      "enabled": true,
+      "label": "Content library",
+      "title": "",
+      "description": ""
+    }
+  },
+  "references": []
+}

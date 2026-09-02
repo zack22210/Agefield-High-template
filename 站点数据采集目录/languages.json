@@ -1,0 +1,10 @@
+{
+  "default": "en",
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "localized_topic": ""
+    }
+  ]
+}

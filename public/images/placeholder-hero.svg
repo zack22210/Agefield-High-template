@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Neutral game wiki placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1020"/>
+      <stop offset="0.55" stop-color="#182340"/>
+      <stop offset="1" stop-color="#10293a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#38bdf8" stop-opacity=".34"/>
+      <stop offset="1" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <circle cx="1200" cy="390" r="390" fill="url(#glow)"/>
+  <circle cx="1220" cy="410" r="210" fill="none" stroke="#38bdf8" stroke-opacity=".52" stroke-width="4"/>
+  <circle cx="1220" cy="410" r="145" fill="none" stroke="#f6c453" stroke-opacity=".48" stroke-width="3"/>
+  <path d="M1220 244 1382 338 1382 526 1220 620 1058 526 1058 338Z" fill="#1b2542" stroke="#c7d2fe" stroke-opacity=".42" stroke-width="5"/>
+  <path d="m1220 316 40 76 84 12-62 58 15 82-77-39-77 39 15-82-62-58 84-12Z" fill="#38bdf8" fill-opacity=".82"/>
+  <g fill="#f8fafc" fill-opacity=".46">
+    <circle cx="948" cy="188" r="5"/><circle cx="1460" cy="166" r="4"/><circle cx="1510" cy="520" r="6"/><circle cx="970" cy="650" r="4"/><circle cx="1330" cy="724" r="5"/>
+  </g>
+</svg>

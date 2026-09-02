@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Game Wiki placeholder icon">
+  <rect width="512" height="512" rx="112" fill="#10152a"/>
+  <path d="M132 116h248c26 0 48 22 48 48v184c0 26-22 48-48 48H132c-26 0-48-22-48-48V164c0-26 22-48 48-48Z" fill="#1b2542"/>
+  <path d="M256 156v200M128 168c44 0 86 12 128 36 42-24 84-36 128-36v164c-44 0-86 12-128 36-42-24-84-36-128-36V168Z" fill="none" stroke="#38bdf8" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="204" r="16" fill="#f6c453"/>
+</svg>

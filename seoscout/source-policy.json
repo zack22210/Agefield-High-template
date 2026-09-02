@@ -1,0 +1,29 @@
+{
+  "official_domains": [],
+  "trusted_domains": [
+    "steampowered.com",
+    "epicgames.com",
+    "gog.com",
+    "playstation.com",
+    "xbox.com",
+    "nintendo.com",
+    "youtube.com",
+    "youtu.be",
+    "discord.com",
+    "discord.gg",
+    "reddit.com"
+  ],
+  "blocked_domains": [
+    "fandom.com",
+    "wiki.gg",
+    "fextralife.com",
+    "progameguides.com",
+    "tryhardguides.com",
+    "game8.co",
+    "scriptblox.com",
+    "rscripts.net",
+    "pastebin.com",
+    "apkcombo.com",
+    "apkpure.com"
+  ]
+}

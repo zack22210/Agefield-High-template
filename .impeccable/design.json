@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-01T20:24:11.3680967+08:00",
+  "title": "Design System: Neutral Game Wiki Framework",
+  "extensions": {
+    "colorMeta": {
+      "signal-cyan": {"role": "primary", "displayName": "Signal Cyan", "canonical": "hsl(199 89% 48%)"},
+      "signal-gold": {"role": "secondary", "displayName": "Signal Gold", "canonical": "hsl(43 90% 64%)"},
+      "paper": {"role": "neutral", "displayName": "Cool Paper", "canonical": "hsl(220 29% 94%)"},
+      "ink": {"role": "neutral", "displayName": "Deep Ink", "canonical": "hsl(226 34% 12%)"}
+    },
+    "typographyMeta": {
+      "display": {"displayName": "Condensed Display", "purpose": "Page-defining headings and short facts."},
+      "body": {"displayName": "Editorial Body", "purpose": "Navigation, metadata, descriptions, and long-form reading."}
+    },
+    "shadows": [],
+    "breakpoints": [
+      {"name": "phone", "value": "560px"},
+      {"name": "tablet", "value": "860px"},
+      {"name": "compact-desktop", "value": "1180px"}
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "description": "Square cyan action reserved for a configured destination.",
+      "html": "<button class=\"ds-button-primary\">OPEN GUIDE</button>",
+      "css": ".ds-button-primary { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 20px; color: hsl(var(--action-foreground)); background: hsl(var(--nav-theme-light)); border: 1px solid hsl(var(--nav-theme-light)); border-radius: 0; font-family: var(--font-body), sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.025em; text-transform: uppercase; transition: background-color 150ms ease, border-color 150ms ease; } .ds-button-primary:hover { background: hsl(var(--paper-bright)); border-color: hsl(var(--paper-bright)); } .ds-button-primary:focus-visible { outline: 3px solid hsl(var(--nav-theme-light)); outline-offset: 3px; }"
+    },
+    {
+      "name": "Status Cell",
+      "kind": "custom",
+      "description": "Compact source-aware fact or explicit pending state.",
+      "html": "<div class=\"ds-status-item\"><span>PLATFORMS</span><strong>TO BE RESEARCHED</strong></div>",
+      "css": ".ds-status-item { min-height: 101px; display: flex; flex-direction: column; justify-content: center; padding: 16px 30px; color: hsl(var(--utility-foreground)); background: hsl(var(--utility-surface)); border-top: 7px solid hsl(var(--nav-theme)); } .ds-status-item span { color: hsl(var(--white) / 0.63); font-size: 10px; text-transform: uppercase; } .ds-status-item strong { margin-top: 3px; font-family: var(--font-display), sans-serif; font-size: 28px; font-weight: 400; line-height: 1.1; text-transform: uppercase; }"
+    },
+    {
+      "name": "Archive Empty State",
+      "kind": "custom",
+      "description": "Honest blank-state destination shown before MDX entries exist.",
+      "html": "<section class=\"ds-content-empty-state\"><h2>ARTICLE LIBRARY READY</h2><p>Guides appear after keyword review.</p></section>",
+      "css": ".ds-content-empty-state { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; padding: 48px 24px; text-align: center; border: 1px solid hsl(var(--line)); background: hsl(var(--paper) / 0.42); } .ds-content-empty-state h2 { margin: 0; font-family: var(--font-display), sans-serif; font-size: 34px; font-weight: 400; text-transform: uppercase; } .ds-content-empty-state p { max-width: 54ch; margin: 0; color: hsl(var(--muted)); }"
+    },
+    {
+      "name": "Feature Copy Panel",
+      "kind": "custom",
+      "description": "Responsive split-panel copy that shrinks safely and keeps long display headings controlled.",
+      "html": "<section class=\"ds-feature-copy\"><span>FEATURE</span><h2>VERIFIED GAME INFORMATION</h2><p>Source-aware context adapts to the selected title.</p></section>",
+      "css": ".ds-feature-copy { min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 72px clamp(48px, 5vw, 96px); background: hsl(var(--paper-bright) / 0.72); } .ds-feature-copy span { color: hsl(var(--nav-theme)); font-size: 12px; font-weight: 700; text-transform: uppercase; } .ds-feature-copy h2 { max-width: 11ch; margin: 0; font-family: var(--font-display), sans-serif; font-size: clamp(3.6rem, 4.4vw, 4.8rem); font-weight: 400; line-height: 0.94; letter-spacing: -0.02em; text-transform: uppercase; } .ds-feature-copy p { max-width: 58ch; margin: 24px 0; color: hsl(var(--muted)); font-size: 18px; line-height: 1.75; } @media (max-width: 860px) { .ds-feature-copy { padding: 64px 32px; } } @media (max-width: 560px) { .ds-feature-copy { padding: 52px 24px; } .ds-feature-copy h2 { font-size: 3.4rem; } }"
+    },
+    {
+      "name": "Theme Toggle",
+      "kind": "button",
+      "description": "Square light/dark control that stays right-aligned in the compact header.",
+      "html": "<button class=\"ds-theme-toggle\" aria-label=\"Switch theme\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/></svg></button>",
+      "css": ".ds-theme-toggle { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; color: hsl(var(--foreground)); border: 1px solid hsl(var(--line)); border-radius: 0; background: transparent; cursor: pointer; } .ds-theme-toggle svg { width: 18px; height: 18px; } .ds-theme-toggle:hover { color: hsl(var(--nav-theme)); background: hsl(var(--paper-bright)); } .ds-theme-toggle:focus-visible { outline: 3px solid hsl(var(--nav-theme-light)); outline-offset: 3px; } @media (max-width: 860px) { .ds-theme-toggle { margin-left: auto; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Verified Game Index",
+    "overview": "A neutral, source-aware shell that can adopt a selected non-Roblox game's official visual language without changing the information framework.",
+    "keyCharacteristics": ["Cool neutral reading surfaces", "Dark utility regions", "Condensed headings with editorial body type", "Square controls and honest pending states"],
+    "rules": [
+      {"name": "The Two-Signal Rule", "body": "Cyan carries structure and active states; gold is secondary emphasis.", "section": "colors"},
+      {"name": "The Condensed-Only-for-Authority Rule", "body": "Use the display face for headings and short facts, never paragraphs.", "section": "typography"},
+      {"name": "The Flat Index Rule", "body": "Use borders, tone changes, or image boundaries instead of floating shadows.", "section": "elevation"}
+    ],
+    "dos": ["Use verified official media when a game is selected.", "Keep unpublished states explicit.", "Adapt the visual voice to the chosen game."],
+    "donts": ["Do not retain placeholder art after replacement.", "Do not invent game facts.", "Do not add decorative UI patterns without game-specific justification."]
+  }
+}

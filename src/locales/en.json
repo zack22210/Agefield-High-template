@@ -1,0 +1,200 @@
+{
+  "site": {
+    "gameName": "Game",
+    "name": "Game Wiki",
+    "shortName": "Game Wiki",
+    "tagline": "Source-Checked Player Guide",
+    "description": "A reusable non-Roblox game wiki starter prepared for verified official sources, localized guides, platform details, and search-focused player resources."
+  },
+  "seo": {
+    "defaultDescription": "A reusable non-Roblox game wiki starter prepared for verified official sources, localized guides, platform details, and search-focused player resources.",
+    "homeTitle": "Game Wiki Template — Verified Player Guide Starter",
+    "homeDescription": "A reusable non-Roblox game wiki starter prepared for verified official sources, localized guides, platform details, and search-focused player resources.",
+    "keywords": "game wiki template, game guides, player resources"
+  },
+  "media": {
+    "heroImage": "/images/placeholder-hero.svg",
+    "logoImage": "/favicon.svg",
+    "articleImage": "/images/placeholder-card.svg",
+    "heroAlt": "Neutral placeholder artwork for a future game wiki",
+    "artworkAlt": "Neutral placeholder artwork for a future game article"
+  },
+  "links": {},
+  "accessibility": {
+    "primaryNavigation": "Primary navigation",
+    "guideNavigation": "Guide navigation",
+    "mobileNavigation": "Mobile navigation",
+    "footerNavigation": "Footer navigation",
+    "releaseStatus": "Template status",
+    "breadcrumb": "Breadcrumb"
+  },
+  "nav": {},
+  "navigationUi": {
+    "language": "English",
+    "localeCode": "EN",
+    "selectLanguage": "Select language",
+    "menu": "Open navigation",
+    "close": "Close navigation"
+  },
+  "languages": {
+    "en": "English"
+  },
+  "contentTypes": {},
+  "home": {
+    "hero": {
+      "enabled": true,
+      "label": "Non-Roblox Game Wiki Template",
+      "title": "Your Next Game Wiki",
+      "description": "Add a game name and domain to replace this neutral starter with researched copy, verified links, official media, a game-specific visual system, and localized player guides.",
+      "image": {
+        "src": "/images/placeholder-hero.svg",
+        "alt": "Neutral placeholder artwork for a future game wiki"
+      },
+      "actions": []
+    },
+    "status": {
+      "enabled": true,
+      "ariaLabel": "Template setup status",
+      "items": [
+        {"icon": "calendar", "label": "Game brief", "value": "Awaiting game name"},
+        {"icon": "monitor", "label": "Platforms", "value": "Research pending"},
+        {"icon": "clock", "label": "Content library", "value": "Awaiting keywords"},
+        {"icon": "price", "label": "Store and pricing", "value": "Research pending"}
+      ]
+    },
+    "facts": {
+      "enabled": true,
+      "label": "Template safeguards",
+      "items": [
+        {"label": "Sources", "value": "Primary first"},
+        {"label": "Keywords", "value": "40–60 intents"},
+        {"label": "Languages", "value": "1–4 locales"},
+        {"label": "Accuracy", "value": "No invented facts"}
+      ]
+    },
+    "story": {
+      "enabled": true,
+      "label": "Phase A / Game replacement",
+      "title": "Start with the game and domain",
+      "description": "The first pass researches official sources, platform stores, communities, media, language demand, and player-facing facts. It then replaces the placeholder identity and adapts the same framework to the selected game's visual world.",
+      "image": {
+        "src": "/images/placeholder-card.svg",
+        "alt": "Neutral placeholder for future game artwork"
+      },
+      "action": {"label": "Awaiting game brief", "article": {"contentType": "guide", "slug": "beginner-guide"}}
+    },
+    "release": {
+      "enabled": true,
+      "label": "Phase B / Keyword research",
+      "title": "Keywords unlock the article library",
+      "description": "After the English homepage is ready, add the manually collected keywords. They are filtered into independent search intents before SEOScout creates, translates, checks, and publishes source-backed MDX articles.",
+      "actions": [
+        {"label": "Awaiting keyword file", "article": {"contentType": "guide", "slug": "beginner-guide"}}
+      ]
+    },
+    "index": {
+      "enabled": true,
+      "label": "Content library",
+      "title": "No articles have been published",
+      "description": "Navigation and article cards appear automatically after reviewed keyword categories are connected to verified MDX content.",
+      "count": "{count, plural, one {# article} other {# articles}}",
+      "open": "Open entry"
+    }
+  },
+  "list": {
+    "breadcrumb": "Wiki index",
+    "label": "Browse the library",
+    "title": "Wiki index",
+    "description": "Published categories and source-checked game guides will appear here after keyword research and content generation.",
+    "available": "Source-checked",
+    "emptyTitle": "No entries yet",
+    "emptyDescription": "Choose a game and provide reviewed keywords. Verified MDX articles will populate this section automatically."
+  },
+  "article": {
+    "home": "Home",
+    "index": "Wiki index",
+    "updated": "Updated",
+    "verified": "Source-checked",
+    "gameFacts": "Game facts",
+    "article": "Article",
+    "lastVerified": "Last verified",
+    "appliesTo": "Applies to",
+    "appliesValue": "Selected game version",
+    "onThisPage": "On this page",
+    "advertisement": "Advertisement",
+    "references": "References",
+    "related": "Related entries",
+    "referenceItems": []
+  },
+  "theme": {
+    "dark": "Switch to dark theme",
+    "light": "Switch to light theme"
+  },
+  "privacyChoices": {
+    "title": "Privacy choices",
+    "description": "Optional analytics stays off until you choose. Advertising storage remains off.",
+    "essential": "Essential only",
+    "allow": "Allow analytics"
+  },
+  "footer": {
+    "navigationLabel": "Footer navigation",
+    "notice": "Reusable independent game-wiki starter. Configure game ownership and attribution before publishing.",
+    "links": [
+      {"label": "Privacy", "kind": "internal", "href": "/privacy-policy"},
+      {"label": "Terms", "kind": "internal", "href": "/terms-of-service"},
+      {"label": "Copyright", "kind": "internal", "href": "/copyright"},
+      {"label": "About", "kind": "internal", "href": "/about"}
+    ]
+  },
+  "legal": {
+    "about": {
+      "title": "About This Game Wiki Template",
+      "metaTitle": "About — Game Wiki Template",
+      "metaDescription": "Learn how this reusable non-Roblox game wiki template handles verified sources, game replacement, localization, and independent editorial content.",
+      "intro": "This repository is a reusable foundation for an independent game guide site and does not currently represent a selected game.",
+      "sections": [
+        {"title": "Purpose", "body": "A new project starts with a game name and domain, then replaces every placeholder with researched information before publication."},
+        {"title": "Editorial approach", "body": "Entries distinguish verified facts from unanswered questions and do not use invented walkthroughs or unsupported claims."},
+        {"title": "Independence", "body": "Sites created from this template are independent fan resources unless an authorized owner explicitly states otherwise."}
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "metaTitle": "Privacy Policy — Game Wiki Template",
+      "metaDescription": "Review the starter privacy, analytics, advertising, and cookie guidance included with this reusable independent game wiki template.",
+      "intro": "This starter policy must be reviewed against the services enabled on the deployed game site.",
+      "sections": [
+        {"title": "Information we process", "body": "A deployed site may receive basic server logs and aggregated technical information needed for security and reliability."},
+        {"title": "Advertising and cookies", "body": "Optional analytics and advertising storage should remain disabled until consent is provided and the deployed services are documented."},
+        {"title": "Contact and changes", "body": "Publish an owner-controlled contact method and update this policy whenever the site's data practices change."}
+      ]
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "metaTitle": "Terms of Service — Game Wiki Template",
+      "metaDescription": "Review the starter terms governing use of an independent fan guide created from this reusable non-Roblox game wiki template.",
+      "intro": "These starter terms must be updated for the selected game, domain, and services before publication.",
+      "sections": [
+        {"title": "Informational purpose", "body": "Game information can change, and visitors should verify purchases, account actions, requirements, and live values through official channels."},
+        {"title": "No affiliation", "body": "A site created from this template is not affiliated with or endorsed by a developer, publisher, or platform holder unless explicitly stated."},
+        {"title": "Acceptable use", "body": "Visitors must not misuse the service, attempt unauthorized access, or republish substantial portions as their own site."}
+      ]
+    },
+    "copyright": {
+      "title": "Copyright",
+      "metaTitle": "Copyright — Game Wiki Template",
+      "metaDescription": "Review the starter ownership, fan-site media use, attribution, and rights-holder guidance for this reusable game wiki template.",
+      "intro": "Replace this starter copy with the selected game's ownership and attribution details before publishing.",
+      "sections": [
+        {"title": "Fan-site use", "body": "Only publish game media that can lawfully support identification, commentary, reporting, or guide context."},
+        {"title": "Site content", "body": "Original editorial text and site code remain subject to their applicable licenses and may not be republished in bulk without permission."},
+        {"title": "Rights concerns", "body": "Publish a rights-holder contact channel for attribution changes, corrections, or removal requests."}
+      ]
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The guide or reference you requested has not been published.",
+    "action": "Return home"
+  }
+}

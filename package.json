@@ -1,0 +1,51 @@
+{
+  "name": "non-roblox-game-wiki-template",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "research:prepare": "node scripts/prepare-seoscout.mjs",
+    "seoscout:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 setup",
+    "seoscout:search": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 search",
+    "seoscout:collect": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 collect",
+    "seoscout:generate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 generate",
+    "seoscout:translate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 translate",
+    "seoscout:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 publish",
+    "seoscout:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-seoscout-content.ps1",
+    "validate:content": "node scripts/validate-wiki.mjs --content",
+    "validate:assets": "node scripts/validate-assets.mjs",
+    "validate:links": "node scripts/validate-links.mjs",
+    "validate:template": "node scripts/validate-wiki.mjs && node scripts/validate-assets.mjs",
+    "validate:site": "node scripts/validate-wiki.mjs --strict && node scripts/validate-assets.mjs --strict",
+    "validate:all": "pnpm validate:site && pnpm typecheck && pnpm build"
+  },
+  "dependencies": {
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "15.5.9",
+    "@tailwindcss/typography": "^0.5.16",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "15.5.9",
+    "next-intl": "^4.3.4",
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "remark-gfm": "^4.0.1",
+    "tailwind-merge": "^2.5.5"
+  },
+  "devDependencies": {
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  }
+}
