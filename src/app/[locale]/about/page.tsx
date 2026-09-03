@@ -8,6 +8,7 @@ export async function generateMetadata({params}: Props) {
   return getLegalMetadata('about', '/about', locale);
 }
 
-export default async function AboutPage() {
-  return <LegalPage {...await getLegalCopy('about')} />;
+export default async function AboutPage({params}: Props) {
+  const {locale} = await params;
+  return <LegalPage {...await getLegalCopy('about', locale)} />;
 }

@@ -8,6 +8,7 @@ export async function generateMetadata({params}: Props) {
   return getLegalMetadata('privacy', '/privacy-policy', locale);
 }
 
-export default async function PrivacyPolicyPage() {
-  return <LegalPage {...await getLegalCopy('privacy')} />;
+export default async function PrivacyPolicyPage({params}: Props) {
+  const {locale} = await params;
+  return <LegalPage {...await getLegalCopy('privacy', locale)} />;
 }

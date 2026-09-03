@@ -8,6 +8,7 @@ export async function generateMetadata({params}: Props) {
   return getLegalMetadata('terms', '/terms-of-service', locale);
 }
 
-export default async function TermsOfServicePage() {
-  return <LegalPage {...await getLegalCopy('terms')} />;
+export default async function TermsOfServicePage({params}: Props) {
+  const {locale} = await params;
+  return <LegalPage {...await getLegalCopy('terms', locale)} />;
 }

@@ -10,6 +10,8 @@ import {routing} from '@/i18n/routing';
 import {absoluteUrl, SITE_IMAGE_PATH, SITE_LOGO_PATH, SITE_URL} from '@/config/site';
 import {EXTERNAL_LINKS} from '@/config/external-links';
 import {Link} from '@/i18n/navigation';
+import {localePath, localeUrl} from '@/lib/locale-url';
+import {withBuildContext} from '@/lib/server-context';
 
 type Props = {
   params: Promise<{locale: string; slug: string[]}>;
@@ -18,84 +20,90 @@ type Props = {
 type ReferenceItem = {key: keyof typeof EXTERNAL_LINKS; title: string; meta: string};
 type ContentTypeOverview = {overviewTitle: string; overviewDescription: string};
 
-function localePath(locale: string, path: string) {
-  return locale === routing.defaultLocale ? path : `/${locale}${path}`;
-}
-
 export async function generateStaticParams() {
-  const [paths, contentTypes] = await Promise.all([getAllContentPaths('en'), getContentTypes('en')]);
-  const listPaths = contentTypes.map((contentType) => ({
-    slug: [contentType]
-  }));
-  return [...listPaths, ...paths.map((item) => ({slug: item.pathSegments}))];
+  return withBuildContext({area: 'content/path', stage: 'generate-static-params'}, async () => {
+    const [paths, contentTypes] = await Promise.all([getAllContentPaths('en'), getContentTypes('en')]);
+    const listPaths = contentTypes.map((contentType) => ({
+      slug: [contentType]
+    }));
+    return [...listPaths, ...paths.map((item) => ({slug: item.pathSegments}))];
+  });
 }
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
   const {locale, slug} = await params;
-  const t = await getTranslations({locale});
-  const siteName = t('site.name');
+  const [contentType, ...articlePath] = slug;
+  return withBuildContext({
+    area: 'url/metadata',
+    stage: 'generate-content-metadata',
+    locale,
+    category: contentType,
+    slug: articlePath.join('/') || undefined,
+    route: localePath(locale, `/${slug.join('/')}`)
+  }, async () => {
+    const t = await getTranslations({locale});
+    const siteName = t('site.name');
 
-  if (slug.length === 1) {
-    const contentType = slug[0];
-    const contentTypes = await getContentTypes(locale);
-    if (!contentTypes.includes(contentType)) return {};
-    const category = (t.raw('contentTypes') as Record<string, ContentTypeOverview>)[contentType];
-    const categoryName = category.overviewTitle;
-    const title = `${categoryName} — ${siteName}`;
-    const pathname = localePath(locale, `/${contentType}`);
+    if (slug.length === 1) {
+      const contentTypes = await getContentTypes(locale);
+      if (!contentTypes.includes(contentType)) notFound();
+      const category = (t.raw('contentTypes') as Record<string, ContentTypeOverview>)[contentType];
+      const categoryName = category.overviewTitle;
+      const title = `${categoryName} — ${siteName}`;
+      const pathname = `/${contentType}`;
+      return {
+        title,
+        description: category.overviewDescription,
+        alternates: {
+          canonical: localeUrl(locale, pathname),
+          languages: Object.fromEntries(
+            routing.locales.map((language) => [language, localeUrl(language, pathname)])
+          )
+        },
+        openGraph: {
+          type: 'website',
+          title,
+          description: category.overviewDescription,
+          url: localeUrl(locale, pathname),
+          images: [{url: absoluteUrl(SITE_IMAGE_PATH), alt: t('media.heroAlt')}]
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title,
+          description: category.overviewDescription,
+          images: [absoluteUrl(SITE_IMAGE_PATH)]
+        }
+      };
+    }
+
+    const articleSlug = articlePath.join('/');
+    const content = await getContent(contentType, articleSlug, locale);
+    if (!content) notFound();
+    const pathname = `/${contentType}/${articleSlug}`;
+    const image = absoluteUrl(content.image);
+    const title = `${content.title} — ${siteName}`;
+
     return {
       title,
-      description: category.overviewDescription,
+      description: content.description,
       alternates: {
-        canonical: pathname,
+        canonical: localeUrl(locale, pathname),
         languages: Object.fromEntries(
-          routing.locales.map((language) => [language, localePath(language, `/${contentType}`)])
+          routing.locales.map((language) => [language, localeUrl(language, pathname)])
         )
       },
       openGraph: {
-        type: 'website',
+        type: 'article',
         title,
-        description: category.overviewDescription,
-        url: absoluteUrl(pathname),
-        images: [{url: absoluteUrl(SITE_IMAGE_PATH), alt: t('media.heroAlt')}]
+        description: content.description,
+        url: localeUrl(locale, pathname),
+        publishedTime: content.date,
+        modifiedTime: content.lastModified,
+        images: [{url: image, alt: content.title}]
       },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description: category.overviewDescription,
-        images: [absoluteUrl(SITE_IMAGE_PATH)]
-      }
+      twitter: {card: 'summary_large_image', title, description: content.description, images: [image]}
     };
-  }
-
-  const [contentType, ...articlePath] = slug;
-  const content = await getContent(contentType, articlePath.join('/'), locale);
-  if (!content) return {};
-  const pathname = `/${contentType}/${articlePath.join('/')}`;
-  const localizedPathname = localePath(locale, pathname);
-  const image = absoluteUrl(content.image);
-  const title = `${content.title} — ${siteName}`;
-
-  return {
-    title,
-    description: content.description,
-    alternates: {
-      canonical: localePath(locale, pathname),
-      languages: Object.fromEntries(
-        routing.locales.map((language) => [language, localePath(language, pathname)])
-      )
-    },
-    openGraph: {
-      type: 'article',
-      title,
-      description: content.description,
-      url: absoluteUrl(localizedPathname),
-      publishedTime: content.date,
-      modifiedTime: content.lastModified,
-      images: [{url: image, alt: content.title}]
-    },
-    twitter: {card: 'summary_large_image', title, description: content.description, images: [image]}
-  };
+  });
 }
 
 async function NavigationPage({locale, contentType}: {locale: string; contentType: string}) {
@@ -119,7 +127,7 @@ async function NavigationPage({locale, contentType}: {locale: string; contentTyp
 
   return (
     <main className="paper-page list-page">
-      <JsonLd data={itemList} />
+      <JsonLd data={itemList} context={{locale, category: contentType, route: localePath(locale, `/${contentType}`)}} />
       <div className="shell">
         <nav className="breadcrumbs" aria-label={t('accessibility.breadcrumb')}>
           <Link href="/">{t('article.home')}</Link><span>/</span><span>{categoryLabel}</span>
@@ -207,7 +215,7 @@ async function DetailPage({locale, contentType, articleSlug}: {locale: string; c
 
   return (
     <main className="paper-page article-page">
-      <JsonLd data={[articleJsonLd, breadcrumbs]} />
+      <JsonLd data={[articleJsonLd, breadcrumbs]} context={{locale, category: contentType, slug: articleSlug, route: localePath(locale, pathname)}} />
       <div className="shell">
         <nav className="breadcrumbs" aria-label={t('accessibility.breadcrumb')}>
           <Link href="/">{t('article.home')}</Link><span>/</span>
@@ -282,7 +290,17 @@ export default async function UnifiedContentPage({params}: Props) {
   const {locale, slug} = await params;
   setRequestLocale(locale);
 
-  if (slug.length === 1) return <NavigationPage locale={locale} contentType={slug[0]} />;
   const [contentType, ...articlePath] = slug;
-  return <DetailPage locale={locale} contentType={contentType} articleSlug={articlePath.join('/')} />;
+  const articleSlug = articlePath.join('/');
+  return withBuildContext({
+    area: 'content/path',
+    stage: slug.length === 1 ? 'render-category-page' : 'render-article-page',
+    locale,
+    category: contentType,
+    slug: articleSlug || undefined,
+    route: localePath(locale, `/${slug.join('/')}`)
+  }, async () => {
+    if (slug.length === 1) return <NavigationPage locale={locale} contentType={contentType} />;
+    return <DetailPage locale={locale} contentType={contentType} articleSlug={articleSlug} />;
+  });
 }
