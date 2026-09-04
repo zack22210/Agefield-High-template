@@ -18,6 +18,8 @@ Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deployment so canonical URLs, 
 
 The complete Chinese workflow is in `WORKFLOW.md` and enforced by `AGENTS.md`.
 
+New-game work starts immediately without a manual review checkpoint. UI changes use the `impeccable` workflow and are handled directly by the active Codex agent. The operating target is to finish one site within a single five-hour usage window while retaining bounded visual review and automated validation.
+
 1. Provide the game name and domain.
 2. Research the game and fill `站点数据采集目录/基础信息.md`, `首页探索模块.json`, and `languages.json`.
 3. Replace placeholder identity, verified links, theme, favicon, Hero, optional Story media, and legal/SEO data.
@@ -40,6 +42,7 @@ pnpm seoscout:run
 ```
 
 Missing articles with insufficient source material are recorded in `seoscout/quality-report.json` instead of being fabricated.
+For each search intent, YouTube transcript collection is capped at the first one or two usable filtered videos.
 
 ## Deployment-equivalent local validation
 

@@ -53,7 +53,25 @@ function Invoke-Search {
   }
 }
 
-function Invoke-Collect { Invoke-SeoScout @('collect', '--keywords', $KeywordsFile) }
+function Get-BoundedYoutubeSetting {
+  param([string]$Name, [int]$Default = 2)
+  $value = $Default
+  $envFile = Join-Path $SeoDir '.env'
+  $line = Get-Content -LiteralPath $envFile | Where-Object { $_ -match "^$([regex]::Escape($Name))=(\d+)\s*$" } | Select-Object -Last 1
+  if ($line -and $line -match '=(\d+)\s*$') {
+    $value = [int]$Matches[1]
+  }
+  return [Math]::Max(1, [Math]::Min(2, $value))
+}
+
+function Invoke-Collect {
+  # SEOScout's dotenv loader keeps existing process values, so these enforce the
+  # template-wide one-or-two-video transcript limit even if .env asks for more.
+  $env:YOUTUBE_INITIAL_SEARCH_RESULTS = [string](Get-BoundedYoutubeSetting 'YOUTUBE_INITIAL_SEARCH_RESULTS')
+  $env:YOUTUBE_MAX_RESULTS_AFTER_FILTER = [string](Get-BoundedYoutubeSetting 'YOUTUBE_MAX_RESULTS_AFTER_FILTER')
+  $env:YOUTUBE_EXTRACT_TOP_K = [string](Get-BoundedYoutubeSetting 'YOUTUBE_EXTRACT_TOP_K')
+  Invoke-SeoScout @('collect', '--keywords', $KeywordsFile)
+}
 function Invoke-Generate { Invoke-SeoScout @('generate', '--keywords', $KeywordsFile, '--prompt', $GeneratePrompt) }
 function Invoke-Translate {
   $data = Get-Content -LiteralPath (Join-Path $SeoDir $KeywordsFile) -Raw | ConvertFrom-Json
