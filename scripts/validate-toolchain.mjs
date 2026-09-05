@@ -14,9 +14,26 @@ const packageManagerMatch = String(packageJson.packageManager ?? '').match(/^pnp
 const expectedPnpm = packageManagerMatch?.[1];
 const expectedNext = packageJson.dependencies?.next;
 
-if (!/^\d+\.\d+\.\d+$/.test(String(expectedNode ?? ''))) {
-  failures.push('package.json engines.node must be one exact x.y.z version.');
-} else if (process.versions.node !== expectedNode) {
+function parseVersion(value) {
+  const match = String(value ?? '').match(/^(\d+)\.(\d+)\.(\d+)$/);
+  return match ? match.slice(1).map(Number) : null;
+}
+
+function compareVersions(left, right) {
+  for (let index = 0; index < 3; index += 1) {
+    if (left[index] !== right[index]) return left[index] - right[index];
+  }
+  return 0;
+}
+
+const nodeRangeMatch = String(expectedNode ?? '').match(/^>=(\d+\.\d+\.\d+) <(\d+)$/);
+const minimumNode = parseVersion(nodeRangeMatch?.[1]);
+const maximumNodeMajor = Number(nodeRangeMatch?.[2]);
+const actualNode = parseVersion(process.versions.node);
+
+if (!minimumNode || !Number.isInteger(maximumNodeMajor) || maximumNodeMajor !== minimumNode[0] + 1) {
+  failures.push('package.json engines.node must be a bounded range such as >=24.18.0 <25.');
+} else if (!actualNode || compareVersions(actualNode, minimumNode) < 0 || actualNode[0] >= maximumNodeMajor) {
   failures.push(`Node.js version mismatch: expected ${expectedNode}, running ${process.versions.node}.`);
 }
 
@@ -62,7 +79,11 @@ for (const [name, expected] of Object.entries({...packageJson.dependencies, ...p
 for (const versionFile of ['.node-version', '.nvmrc']) {
   try {
     const value = (await readFile(path.join(root, versionFile), 'utf8')).trim().replace(/^v/, '');
-    if (value !== expectedNode) failures.push(`${versionFile} (${value}) does not match engines.node (${expectedNode}).`);
+    const pinnedNode = parseVersion(value);
+    if (!pinnedNode) failures.push(`${versionFile} must contain one exact x.y.z version.`);
+    else if (minimumNode && maximumNodeMajor && (compareVersions(pinnedNode, minimumNode) < 0 || pinnedNode[0] >= maximumNodeMajor)) {
+      failures.push(`${versionFile} (${value}) is outside engines.node (${expectedNode}).`);
+    }
   } catch {
     failures.push(`${versionFile} is missing.`);
   }
@@ -74,5 +95,5 @@ if (failures.length > 0) {
   console.error(`Toolchain validation failed with ${failures.length} issue(s).`);
   process.exitCode = 1;
 } else {
-  console.log(`Toolchain validation passed: Node.js ${expectedNode}, pnpm ${expectedPnpm}, Next.js ${expectedNext}, lockfile ${lockVersion}.`);
+  console.log(`Toolchain validation passed: Node.js ${process.versions.node} (${expectedNode}), pnpm ${expectedPnpm}, Next.js ${expectedNext}, lockfile ${lockVersion}.`);
 }

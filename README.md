@@ -10,7 +10,7 @@ pnpm install
 pnpm dev
 ```
 
-The repository pins Node.js 24.18.0, pnpm 11.10.0, Next.js 15.5.9, and every package version. Use `.node-version` or `.nvmrc` before installing.
+The repository supports Node.js 24.18.0 and later Node 24 releases, and pins pnpm 11.10.0, Next.js 15.5.9, and every package version. Use `.node-version` or `.nvmrc` to select the recommended local Node.js version before installing.
 
 Set `NEXT_PUBLIC_SITE_URL` in `.env.local` before deployment so canonical URLs, Open Graph metadata, JSON-LD, `robots.txt`, and the sitemap use the production origin. The value may be an HTTPS URL, a bare domain, quoted text, or a Markdown link; only its normalized HTTP(S) origin is emitted. `SITE_URL` is an optional lower-priority alias. Missing or invalid values use the safe reserved fallback `https://game-wiki.example` and produce a warning instead of crashing the build.
 
