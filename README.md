@@ -20,6 +20,8 @@ The complete Chinese workflow is in `WORKFLOW.md` and enforced by `AGENTS.md`.
 
 New-game work starts immediately without a manual review checkpoint. UI changes use the `impeccable` workflow and are handled directly by the active Codex agent. The operating target is to finish one site within a single five-hour usage window while retaining bounded visual review and automated validation.
 
+When an authenticated Google AI Pro browser session is available, the default workflow automatically uses Gemini Deep Research for compact, source-linked research drafts and Gemini for keyword-preparation assistance and bounded post-generation review. Gemini output remains untrusted research input: Codex verifies allowed sources before editing the site, and the Google AI Pro web subscription does not replace SEOScout's configured batch-generation API.
+
 1. Provide the game name and domain.
 2. Research the game and fill `站点数据采集目录/基础信息.md`, `首页探索模块.json`, and `languages.json`.
 3. Replace placeholder identity, verified links, theme, favicon, Hero, optional Story media, and legal/SEO data.
