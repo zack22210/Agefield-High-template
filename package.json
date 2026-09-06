@@ -20,6 +20,8 @@
     "validate:toolchain": "node scripts/validate-toolchain.mjs",
     "research:prepare": "node scripts/prepare-seoscout.mjs",
     "seoscout:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 setup",
+    "seoscout:repair": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 repair",
+    "seoscout:health": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 health",
     "seoscout:search": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 search",
     "seoscout:collect": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 collect",
     "seoscout:generate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 generate",

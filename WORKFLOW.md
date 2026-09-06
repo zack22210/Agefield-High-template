@@ -51,12 +51,13 @@ seoscout/
 └── output/
 ```
 
-首次使用运行 `pnpm seoscout:setup`。项目使用本地 Trafilatura 抽取网页正文，不需要 Jina Key。
+首次使用运行 `pnpm seoscout:setup`，然后运行 `pnpm seoscout:health` 验证 Git 来源、固定提交、补丁哈希和虚拟环境。如果检测到旧版、未跟踪或损坏的共享安装，在阶段 B 之前执行 `pnpm seoscout:repair`；异常文件会移入带时间戳的 `backups/` 目录，不会被删除。项目使用本地 Trafilatura 抽取网页正文，不需要 Jina Key。
 
 ## 四、生成、翻译与同步
 
 ```bash
 pnpm research:prepare
+pnpm seoscout:health
 pnpm seoscout:run
 ```
 

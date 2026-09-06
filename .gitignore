@@ -3,6 +3,7 @@ node_modules
 .next
 out
 .env*.local
+seoscout/.env
 .DS_Store
 *.log
 *.tsbuildinfo

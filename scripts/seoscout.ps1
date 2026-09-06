@@ -1,15 +1,21 @@
 param(
   [Parameter(Position = 0)]
-  [ValidateSet('setup', 'search', 'collect', 'generate', 'translate', 'publish')]
+  [ValidateSet('setup', 'repair', 'health', 'search', 'collect', 'generate', 'translate', 'publish')]
   [string]$Action = 'publish',
-  [string]$SharedPath = $(if ($env:SEOSCOUT_SHARED_PATH) { $env:SEOSCOUT_SHARED_PATH } else { 'D:\Web出海\tools\seoscout' })
+  [string]$SharedPath = $env:SEOSCOUT_SHARED_PATH
 )
 
 $ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new()
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'seoscout-common.ps1')
+if ([string]::IsNullOrWhiteSpace($SharedPath)) {
+  $SharedPath = Get-DefaultSeoScoutSharedPath -ProjectRoot $ProjectRoot
+}
 $SeoDir = Join-Path $ProjectRoot 'seoscout'
-$SeoScoutExe = Join-Path $SharedPath '.venv\Scripts\seoscout.exe'
 $PythonExe = Join-Path $SharedPath '.venv\Scripts\python.exe'
+$SourcePath = Join-Path $SharedPath 'source'
+$SeoScoutRunner = Join-Path $PSScriptRoot 'run-seoscout.py'
 $KeywordsFile = 'keywords.json'
 $GeneratePrompt = 'prompts\generate.md'
 $TranslatePrompt = 'prompts\translate.md'
@@ -39,9 +45,7 @@ function Get-ProjectName {
 
 function Invoke-SeoScout {
   param([string[]]$Arguments)
-  Push-Location $SeoDir
-  try { Invoke-Checked $SeoScoutExe $Arguments }
-  finally { Pop-Location }
+  Invoke-Checked $PythonExe (@($SeoScoutRunner, $SourcePath, $SeoDir) + $Arguments)
 }
 
 function Invoke-Search {
@@ -86,10 +90,16 @@ if ($Action -eq 'setup') {
   & (Join-Path $PSScriptRoot 'setup-seoscout.ps1') -SharedPath $SharedPath
   exit $LASTEXITCODE
 }
-
-if (-not (Test-Path -LiteralPath $SeoScoutExe)) {
-  throw "Shared SEOScout is not installed. Run pnpm seoscout:setup first. Expected: $SeoScoutExe"
+if ($Action -eq 'repair') {
+  & (Join-Path $PSScriptRoot 'setup-seoscout.ps1') -SharedPath $SharedPath -Repair
+  exit $LASTEXITCODE
 }
+if ($Action -eq 'health') {
+  Assert-SeoScoutInstallation -SharedPath $SharedPath
+  exit 0
+}
+
+Assert-SeoScoutInstallation -SharedPath $SharedPath
 if (-not (Test-Path -LiteralPath (Join-Path $SeoDir '.env'))) {
   throw 'Missing seoscout/.env. Copy .env.example and add the required API keys.'
 }

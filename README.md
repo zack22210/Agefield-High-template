@@ -34,12 +34,22 @@ The `content/` directory must remain present even when empty because the MDX loa
 
 SEOScout is installed once at `D:\Web出海\tools\seoscout`. Each game project keeps only its own keys, prompts, collected data, generated articles, and quality report under `seoscout/`.
 
-Copy `seoscout/.env.example` to `seoscout/.env`, add the Serper and OpenAI-compatible LLM keys, then run:
+The shared checkout is pinned to an audited Git commit. Setup records its origin,
+commit, and template-patch hashes; every phase-B run verifies those values before
+executing shared code. Copy `seoscout/.env.example` to `seoscout/.env`, add the
+Serper and OpenAI-compatible LLM keys, then run:
 
 ```bash
 pnpm seoscout:setup
+pnpm seoscout:health
 pnpm seoscout:run
 ```
+
+If health verification reports an old, untracked, or damaged installation, run
+`pnpm seoscout:repair` once before phase B. Repair moves unverifiable files into
+a timestamped `backups/` directory and does not delete them. A local checkout is
+reused only when its origin, pinned commit, Git object integrity, and complete
+working-tree status verify; otherwise repair clones the approved repository.
 
 Missing articles with insufficient source material are recorded in `seoscout/quality-report.json` instead of being fabricated.
 For each search intent, YouTube transcript collection is capped at the first one or two usable filtered videos.
