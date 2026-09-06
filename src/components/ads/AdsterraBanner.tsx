@@ -25,7 +25,7 @@ const bannerDimensions: Record<AdsterraBannerSize, {width: number; height: numbe
   '300x250': {width: 300, height: 250},
   '320x50': {width: 320, height: 50},
   '468x60': {width: 468, height: 60},
-  '728x90': {width: 728, height: 90}
+  '728x90': {width: 728, height: 90},
 };
 
 export function AdBanner({adKey, eager = false, title = 'Advertisement', type}: AdBannerProps) {

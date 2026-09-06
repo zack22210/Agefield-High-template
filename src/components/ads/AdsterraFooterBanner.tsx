@@ -2,11 +2,12 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {AdBanner} from '@/components/ads/AdsterraBanner';
+import {ADSTERRA_ADS} from '@/config/ads';
 
 export function AdsterraFooterBanner({title = 'Advertisement'}: {title?: string}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
-  const adKey = process.env.NEXT_PUBLIC_ADSTERRA_BANNER_728X90_KEY?.trim() ?? '';
+  const adKey = ADSTERRA_ADS.banner728x90;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -32,7 +33,10 @@ export function AdsterraFooterBanner({title = 'Advertisement'}: {title?: string}
         className="mx-auto w-full max-w-[728px] overflow-hidden"
         style={{height: containerWidth ? 90 * scale : 0}}
       >
-        <div className="h-[90px] w-[728px] origin-top-left" style={{transform: `scale(${scale})`}}>
+        <div
+          className="h-[90px] w-[728px] origin-top-left"
+          style={{transform: `scale(${scale})`}}
+        >
           <AdBanner adKey={adKey} type="banner-728x90" title={title} />
         </div>
       </div>

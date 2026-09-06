@@ -3,6 +3,7 @@
 import {useEffect, useState} from 'react';
 import {X} from 'lucide-react';
 import {AdBanner} from '@/components/ads/AdsterraBanner';
+import {ADSTERRA_ADS} from '@/config/ads';
 
 type Side = 'left' | 'right';
 
@@ -26,7 +27,7 @@ function DismissibleSideBanner({adKey, side}: {adKey: string; side: Side}) {
           <AdBanner type="banner-160x300" adKey={adKey} eager />
           <button
             type="button"
-            aria-label="Close advertisement"
+            aria-label="关闭广告"
             onClick={() => setDismissed(true)}
             className="absolute right-0 top-0 z-10 flex size-8 items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
@@ -40,7 +41,7 @@ function DismissibleSideBanner({adKey, side}: {adKey: string; side: Side}) {
 
 export function AdsterraSideBanners() {
   const [isWideDesktop, setIsWideDesktop] = useState(false);
-  const adKey = process.env.NEXT_PUBLIC_ADSTERRA_BANNER_160X300_KEY?.trim() ?? '';
+  const adKey = ADSTERRA_ADS.banner160x300;
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1760px)');

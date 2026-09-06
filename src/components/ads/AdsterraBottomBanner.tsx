@@ -3,10 +3,11 @@
 import {useState} from 'react';
 import {X} from 'lucide-react';
 import {AdBanner} from '@/components/ads/AdsterraBanner';
+import {ADSTERRA_ADS} from '@/config/ads';
 
 export function AdsterraBottomBanner() {
   const [dismissed, setDismissed] = useState(false);
-  const adKey = process.env.NEXT_PUBLIC_ADSTERRA_BANNER_320X50_KEY?.trim() ?? '';
+  const adKey = ADSTERRA_ADS.banner320x50;
 
   if (dismissed || !adKey) return null;
 
@@ -19,7 +20,7 @@ export function AdsterraBottomBanner() {
             <AdBanner type="banner-320x50" adKey={adKey} eager />
             <button
               type="button"
-              aria-label="Close advertisement"
+              aria-label="关闭广告"
               onClick={() => setDismissed(true)}
               className="absolute right-0 top-0 z-10 flex size-7 items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
             >

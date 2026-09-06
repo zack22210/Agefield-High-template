@@ -16,6 +16,7 @@ import {useEffect, useRef} from 'react';
 import {buttonVariants} from '@/components/ui/button';
 import {AdsterraFooterBanner} from '@/components/ads/AdsterraFooterBanner';
 import {AdsterraNativeBanner} from '@/components/ads/AdsterraNativeBanner';
+import {ADSTERRA_ADS} from '@/config/ads';
 import {cn} from '@/lib/utils';
 import {Link} from '@/i18n/navigation';
 
@@ -101,8 +102,8 @@ export function HomePageClient({groups}: {groups: HomeContentGroup[]}) {
   const t = useTranslations();
   const config = t.raw('home') as HomePageConfig;
   const links = t.raw('links') as Record<string, string>;
-  const nativeBannerKey = process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BANNER_KEY?.trim() ?? '';
-  const nativeBannerScriptSrc = process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BANNER_SCRIPT_SRC?.trim() ?? '';
+  const nativeBannerKey = ADSTERRA_ADS.native.key;
+  const nativeBannerScriptSrc = ADSTERRA_ADS.native.scriptSrc;
   const nativeBannerEnabled = Boolean(nativeBannerKey && nativeBannerScriptSrc);
 
   useEffect(() => () => {
