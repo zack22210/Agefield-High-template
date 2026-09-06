@@ -5,6 +5,8 @@ import {getTranslations, setRequestLocale} from 'next-intl/server';
 import {ArrowUpRight, BookOpenText, CheckCircle2, ExternalLink} from 'lucide-react';
 import {JsonLd} from '@/components/JsonLd';
 import {ArticleToc} from '@/components/ArticleToc';
+import {AdsterraFooterBanner} from '@/components/ads/AdsterraFooterBanner';
+import {AdsterraSideBanners} from '@/components/ads/AdsterraSideBanners';
 import {getAllContent, getAllContentPaths, getContent, getContentTypes} from '@/lib/content';
 import {routing} from '@/i18n/routing';
 import {absoluteUrl, SITE_IMAGE_PATH, SITE_LOGO_PATH, SITE_URL} from '@/config/site';
@@ -126,8 +128,9 @@ async function NavigationPage({locale, contentType}: {locale: string; contentTyp
   };
 
   return (
-    <main className="paper-page list-page">
+    <main className="paper-page list-page relative">
       <JsonLd data={itemList} context={{locale, category: contentType, route: localePath(locale, `/${contentType}`)}} />
+      <AdsterraSideBanners />
       <div className="shell">
         <nav className="breadcrumbs" aria-label={t('accessibility.breadcrumb')}>
           <Link href="/">{t('article.home')}</Link><span>/</span><span>{categoryLabel}</span>
@@ -167,6 +170,7 @@ async function NavigationPage({locale, contentType}: {locale: string; contentTyp
           </div>
         )}
       </div>
+      <AdsterraFooterBanner title={t('article.advertisement')} />
     </main>
   );
 }
@@ -214,8 +218,9 @@ async function DetailPage({locale, contentType, articleSlug}: {locale: string; c
   };
 
   return (
-    <main className="paper-page article-page">
+    <main className="paper-page article-page relative">
       <JsonLd data={[articleJsonLd, breadcrumbs]} context={{locale, category: contentType, slug: articleSlug, route: localePath(locale, pathname)}} />
+      <AdsterraSideBanners />
       <div className="shell">
         <nav className="breadcrumbs" aria-label={t('accessibility.breadcrumb')}>
           <Link href="/">{t('article.home')}</Link><span>/</span>
@@ -266,6 +271,8 @@ async function DetailPage({locale, contentType, articleSlug}: {locale: string; c
           </aside>
         </div>
 
+        <AdsterraFooterBanner title={t('article.advertisement')} />
+
         <section className="related-entries" aria-labelledby="related-entries-title">
           <h2 id="related-entries-title">{t('article.related')}</h2>
           <div>
@@ -277,10 +284,6 @@ async function DetailPage({locale, contentType, articleSlug}: {locale: string; c
           </div>
         </section>
 
-        <div className="advertisement-slot" aria-label={t('article.advertisement')}>
-          <span>{t('article.advertisement')}</span>
-          <iframe src="/ads/728x90.html" title={t('article.advertisement')} loading="lazy" />
-        </div>
       </div>
     </main>
   );

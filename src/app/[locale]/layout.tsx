@@ -6,6 +6,7 @@ import {notFound} from 'next/navigation';
 import {routing} from '@/i18n/routing';
 import {SiteHeader} from '@/components/SiteHeader';
 import {SiteFooter} from '@/components/SiteFooter';
+import {AdsterraBottomBanner} from '@/components/ads/AdsterraBottomBanner';
 import {JsonLd} from '@/components/JsonLd';
 import {CookieConsent} from '@/components/CookieConsent';
 import {getAllContentGroups} from '@/lib/content';
@@ -110,6 +111,7 @@ export default async function LocaleLayout({children, params}: Props) {
             <JsonLd data={organization} context={{locale, route: localePathForContext(locale)}} />
             <SiteHeader groups={navigationGroups} />
             {children}
+            <AdsterraBottomBanner />
             <SiteFooter />
             <CookieConsent />
           </NextIntlClientProvider>

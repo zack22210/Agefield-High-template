@@ -14,6 +14,8 @@ import {
 import {useTranslations} from 'next-intl';
 import {useEffect, useRef} from 'react';
 import {buttonVariants} from '@/components/ui/button';
+import {AdsterraFooterBanner} from '@/components/ads/AdsterraFooterBanner';
+import {AdsterraNativeBanner} from '@/components/ads/AdsterraNativeBanner';
 import {cn} from '@/lib/utils';
 import {Link} from '@/i18n/navigation';
 
@@ -99,6 +101,9 @@ export function HomePageClient({groups}: {groups: HomeContentGroup[]}) {
   const t = useTranslations();
   const config = t.raw('home') as HomePageConfig;
   const links = t.raw('links') as Record<string, string>;
+  const nativeBannerKey = process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BANNER_KEY?.trim() ?? '';
+  const nativeBannerScriptSrc = process.env.NEXT_PUBLIC_ADSTERRA_NATIVE_BANNER_SCRIPT_SRC?.trim() ?? '';
+  const nativeBannerEnabled = Boolean(nativeBannerKey && nativeBannerScriptSrc);
 
   useEffect(() => () => {
     if (animationFrameRef.current !== null) cancelAnimationFrame(animationFrameRef.current);
@@ -212,7 +217,16 @@ export function HomePageClient({groups}: {groups: HomeContentGroup[]}) {
       ) : null}
 
       {config.index.enabled ? groups.length > 0 ? groups.map((group, groupIndex) => (
-          <section id={groupIndex === 0 ? 'coverage' : undefined} className="archive-section paper-surface" key={group.contentType}>
+          <section
+            id={groupIndex === 0 ? 'coverage' : undefined}
+            className={`archive-section paper-surface${groupIndex === 0 && nativeBannerEnabled ? ' !pt-3' : ''}`}
+            key={group.contentType}
+          >
+            {groupIndex === 0 ? (
+              <div className="shell mb-4">
+                <AdsterraNativeBanner adKey={nativeBannerKey} scriptSrc={nativeBannerScriptSrc} />
+              </div>
+            ) : null}
             <div className="shell">
               <div className="archive-heading">
                 <div><span>{config.index.label}</span><h2>{group.label}</h2></div>
@@ -234,7 +248,10 @@ export function HomePageClient({groups}: {groups: HomeContentGroup[]}) {
             </div>
           </section>
         )) : (
-          <section id="coverage" className="archive-section paper-surface">
+          <section id="coverage" className={`archive-section paper-surface${nativeBannerEnabled ? ' !pt-3' : ''}`}>
+            <div className="shell mb-4">
+              <AdsterraNativeBanner adKey={nativeBannerKey} scriptSrc={nativeBannerScriptSrc} />
+            </div>
             <div className="shell">
               <div className="archive-heading">
                 <div><span>{config.index.label}</span><h2>{config.index.title}</h2></div>
@@ -249,6 +266,8 @@ export function HomePageClient({groups}: {groups: HomeContentGroup[]}) {
             </div>
           </section>
         ) : null}
+
+      <AdsterraFooterBanner title={t('article.advertisement')} />
     </main>
   );
 }
