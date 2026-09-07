@@ -619,3 +619,21 @@ svg { width: 1.1em; height: 1.1em; stroke-width: 2; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
   .hero-image { transform: none; }
 }
+
+/* The language menu uses site colors instead of the operating system select popup. */
+.language-switcher { position: relative; flex: 0 0 auto; padding: 0; border: 0; }
+.language-trigger { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 12px; color: inherit; background: transparent; border: 1px solid hsl(var(--line)); font: inherit; cursor: pointer; }
+.language-trigger:hover, .language-trigger[aria-expanded="true"] { background: hsl(var(--nav-theme) / 0.1); border-color: hsl(var(--nav-theme)); }
+.language-trigger .language-chevron { width: 14px; height: 14px; }
+.language-trigger[aria-expanded="true"] .language-chevron { transform: rotate(180deg); }
+.language-menu { position: absolute; top: calc(100% + 8px); right: 0; z-index: 100; width: 208px; max-width: calc(100vw - 32px); padding: 6px; color: hsl(var(--foreground)); background: hsl(var(--paper-bright)); border: 1px solid hsl(var(--line)); box-shadow: 0 8px 24px hsl(var(--black) / 0.16); }
+.language-option { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 10px; border: 0; color: inherit; background: transparent; font: inherit; text-align: left; cursor: pointer; }
+.language-option[aria-checked="true"] { background: hsl(var(--nav-theme) / 0.12); font-weight: 700; }
+.language-option:hover { background: hsl(var(--nav-theme) / 0.2); }
+.language-code { margin-left: auto; color: hsl(var(--muted)); font-size: 10px; letter-spacing: 0.06em; }
+.language-option:not([aria-checked="true"]) { padding-right: 37px; }
+.language-trigger:focus-visible, .language-option:focus-visible { outline: 2px solid hsl(var(--nav-theme)); outline-offset: 2px; }
+@media (max-width: 860px) {
+  .mobile-language-switcher .language-menu { left: 0; right: auto; }
+  .mobile-language-switcher .language-trigger { border-color: hsl(var(--white) / 0.3); }
+}

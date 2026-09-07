@@ -1,4 +1,25 @@
 {
-  "checked_at": "2026-09-01T12:21:46.705Z",
-  "results": []
+  "checked_at": "2026-09-06T16:44:59.757Z",
+  "results": [
+    {
+      "url": "https://${candidate}`",
+      "status": null,
+      "ok": false,
+      "severity": "error",
+      "message": "fetch failed",
+      "files": [
+        "src/config/site-url.ts"
+      ]
+    },
+    {
+      "url": "https://game-wiki.example",
+      "status": null,
+      "ok": false,
+      "severity": "error",
+      "message": "fetch failed",
+      "files": [
+        "src/config/site-url.ts"
+      ]
+    }
+  ]
 }
