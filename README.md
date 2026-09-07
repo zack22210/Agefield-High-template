@@ -54,7 +54,7 @@ reused only when its origin, pinned commit, Git object integrity, and complete
 working-tree status verify; otherwise repair clones the approved repository.
 
 Missing articles with insufficient source material are recorded in `seoscout/quality-report.json` instead of being fabricated.
-For each search intent, YouTube transcript collection is capped at the first one or two usable filtered videos.
+For each search intent, YouTube transcript collection takes the top 3-5 filtered videos by view count.
 
 ## Deployment-equivalent local validation
 

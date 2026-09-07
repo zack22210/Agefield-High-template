@@ -13,6 +13,8 @@ test('phase-B scripts pin and verify the approved SEOScout source', async () => 
   assert.match(common, /status --porcelain --untracked-files=all/);
   assert.match(common, /patched_files/);
   assert.match(common, /\$SeoScoutExpectedPatchHashes/);
+  assert.match(common, /seoscout\/core\/youtube\.py/);
+  assert.match(common, /seoscout\/collect\.py/);
 });
 
 test('repair is explicit, recoverable, and health runs before shared code', async () => {
@@ -44,4 +46,16 @@ test('project secrets stay untracked and noninteractive pnpm does not prompt', a
   assert.doesNotMatch(common, /SERPER_API_KEY=[A-Za-z0-9]{16,}/);
   assert.doesNotMatch(wrapper, /LLM_API_KEY=sk-/);
   assert.doesNotMatch(setup, /LLM_API_KEY=sk-/);
+});
+
+test('collect extracts transcripts for the top 3-5 videos by view count', async () => {
+  const patch = await readFile(path.join(root, 'scripts', 'patch-seoscout-trafilatura.py'), 'utf8');
+  const wrapper = await readFile(path.join(root, 'scripts', 'seoscout.ps1'), 'utf8');
+  const envExample = await readFile(path.join(root, 'seoscout', '.env.example'), 'utf8');
+  assert.match(patch, /select_top_viewed_youtube/);
+  assert.match(patch, /view_count/);
+  assert.match(patch, /limit = max\(3, min\(int\(max_k or 5\), 5\)\)/);
+  assert.doesNotMatch(patch, /youtube_metadata_content/);
+  assert.match(wrapper, /YOUTUBE_EXTRACT_TOP_K' -Default 5 -Min 3 -Max 5/);
+  assert.match(envExample, /YOUTUBE_EXTRACT_TOP_K=5/);
 });

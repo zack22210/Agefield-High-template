@@ -139,6 +139,127 @@ def main() -> None:
         config_file.write_text(config_text, encoding="utf-8")
         print(f"Removed obsolete Jina key requirement: {config_file}")
 
+    youtube_file = args.source / "seoscout" / "core" / "youtube.py"
+    youtube_text = youtube_file.read_text(encoding="utf-8")
+    if "async def probe_access(self)" not in youtube_text:
+        youtube_text = replace_once(
+            youtube_text,
+            "    def __init__(self):\n        self.config = Config\n",
+            "    def __init__(self):\n        self.config = Config\n        self.blocked = False\n",
+            "YouTube blocked flag",
+        )
+        youtube_text = replace_once(
+            youtube_text,
+            '    async def extract_batch(self, items: List[YouTubeItem]) -> List[Tuple[YouTubeItem, str]]:',
+            textwrap.indent(
+                textwrap.dedent(
+                    '''
+                    async def probe_access(self) -> bool:
+                        """Return False quickly when YouTube itself is unreachable."""
+                        print("\\n🔎 Probing YouTube access...")
+                        loop = asyncio.get_event_loop()
+                        try:
+                            reachable = await asyncio.wait_for(
+                                loop.run_in_executor(None, self._probe_access_sync),
+                                timeout=12,
+                            )
+                        except Exception as error:
+                            print(f"  ✗ YouTube unreachable: {error}")
+                            self.blocked = True
+                            return False
+                        if reachable:
+                            print("  ✓ YouTube reachable")
+                            return True
+                        print("  ✗ YouTube unreachable; skipping transcript extraction")
+                        self.blocked = True
+                        return False
+
+                    def _probe_access_sync(self) -> bool:
+                        session = requests.Session()
+                        proxy_url = None
+                        if self.config.use_proxy_for_stage("extract"):
+                            proxy_url = self.config.get_proxy_url_for_stage("extract")
+                        if proxy_url:
+                            session.proxies.update({"http": proxy_url, "https": proxy_url})
+                        response = session.get(
+                            "https://www.youtube.com/generate_204",
+                            timeout=8,
+                            allow_redirects=True,
+                        )
+                        return response.status_code < 500
+
+                    async def extract_batch(self, items: List[YouTubeItem]) -> List[Tuple[YouTubeItem, str]]:
+                    '''
+                ).strip(),
+                "    ",
+            )
+            + "\n",
+            "YouTube probe_access",
+        )
+        youtube_text = replace_once(
+            youtube_text,
+            "        async with semaphore:\n            # 1. 检查缓存\n",
+            "        async with semaphore:\n            if self.blocked:\n                return (item, \"\")\n\n            # 1. 检查缓存\n",
+            "YouTube extract blocked short-circuit",
+        )
+        youtube_text = replace_once(
+            youtube_text,
+            '                is_ip_blocked = error_name in ("RequestBlocked", "IpBlocked", "SSLError", "ProxyError")\n\n                if is_ip_blocked and use_proxy and attempt < max_retries - 1:',
+            '                is_ip_blocked = error_name in ("RequestBlocked", "IpBlocked", "SSLError", "ProxyError")\n'
+            '                is_unreachable = is_ip_blocked or error_name in (\n'
+            '                    "ConnectTimeout", "ConnectionError", "Timeout", "TimeoutError",\n'
+            '                    "ChunkedEncodingError", "RemoteDisconnected",\n'
+            '                )\n\n'
+            '                if is_unreachable and not use_proxy:\n'
+            '                    print(f"    ⚠️ {video_id}: {error_name} (YouTube unreachable)")\n'
+            '                    self.blocked = True\n'
+            '                    return ""\n\n'
+            '                if is_ip_blocked and use_proxy and attempt < max_retries - 1:',
+            "YouTube unreachable fail-fast",
+        )
+        youtube_file.write_text(youtube_text, encoding="utf-8")
+        print(f"Added YouTube access probe and fail-fast: {youtube_file}")
+    else:
+        print(f"YouTube access probe already applied: {youtube_file}")
+
+    collect_file = args.source / "seoscout" / "collect.py"
+    collect_text = collect_file.read_text(encoding="utf-8")
+    if "select_top_viewed_youtube" not in collect_text:
+        collect_helpers = '''    return unique_items, url_to_keywords
+
+
+def select_top_viewed_youtube(items, max_k):
+    selected = [item for item in items if item.get("selected", True)]
+    ranked = sorted(
+        selected,
+        key=lambda item: int(item.get("view_count") or 0),
+        reverse=True,
+    )
+    limit = max(3, min(int(max_k or 5), 5))
+    return ranked[:limit]
+
+
+async def run_collect(project: str):
+'''
+        collect_text = replace_once(
+            collect_text,
+            "    return unique_items, url_to_keywords\n\n\nasync def run_collect(project: str):\n",
+            collect_helpers,
+            "YouTube view-count ranking helper",
+        )
+        collect_text = replace_once(
+            collect_text,
+            "            yt_items_by_keyword[keyword] = selected_yt[:Config.YOUTUBE_EXTRACT_TOP_K]\n",
+            "            yt_items_by_keyword[keyword] = select_top_viewed_youtube(\n"
+            "                selected_yt, Config.YOUTUBE_EXTRACT_TOP_K\n"
+            "            )\n",
+            "rank YouTube videos by view count",
+        )
+        collect_file.write_text(collect_text, encoding="utf-8")
+        print(f"Collect now extracts transcripts for the top 3-5 videos by view count: {collect_file}")
+    else:
+        print(f"YouTube view-count transcript ranking already applied: {collect_file}")
+
 
 if __name__ == "__main__":
     main()

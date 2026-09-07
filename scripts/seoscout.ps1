@@ -56,7 +56,21 @@ function Invoke-SeoScout {
   Invoke-Checked $PythonExe (@($SeoScoutRunner, $SourcePath, $SeoDir) + $Arguments)
 }
 
+function Get-BoundedYoutubeSetting {
+  param([string]$Name, [int]$Default = 2, [int]$Min = 1, [int]$Max = 2)
+  $value = $Default
+  $envFile = Join-Path $SeoDir '.env'
+  $line = Get-Content -LiteralPath $envFile | Where-Object { $_ -match "^$([regex]::Escape($Name))=(\d+)\s*$" } | Select-Object -Last 1
+  if ($line -and $line -match '=(\d+)\s*$') {
+    $value = [int]$Matches[1]
+  }
+  return [Math]::Max($Min, [Math]::Min($Max, $value))
+}
+
 function Invoke-Search {
+  # Search a larger pool so collect can rank by view count, then take the top 3-5.
+  $env:YOUTUBE_INITIAL_SEARCH_RESULTS = [string](Get-BoundedYoutubeSetting 'YOUTUBE_INITIAL_SEARCH_RESULTS' -Default 8 -Min 5 -Max 10)
+  $env:YOUTUBE_MAX_RESULTS_AFTER_FILTER = [string](Get-BoundedYoutubeSetting 'YOUTUBE_MAX_RESULTS_AFTER_FILTER' -Default 8 -Min 5 -Max 10)
   Invoke-SeoScout @('search', '--keywords', $KeywordsFile)
   $project = Get-ProjectName
   $results = Join-Path $SeoDir "output\$project\out\search_results.json"
@@ -65,23 +79,9 @@ function Invoke-Search {
   }
 }
 
-function Get-BoundedYoutubeSetting {
-  param([string]$Name, [int]$Default = 2)
-  $value = $Default
-  $envFile = Join-Path $SeoDir '.env'
-  $line = Get-Content -LiteralPath $envFile | Where-Object { $_ -match "^$([regex]::Escape($Name))=(\d+)\s*$" } | Select-Object -Last 1
-  if ($line -and $line -match '=(\d+)\s*$') {
-    $value = [int]$Matches[1]
-  }
-  return [Math]::Max(1, [Math]::Min(2, $value))
-}
-
 function Invoke-Collect {
-  # SEOScout's dotenv loader keeps existing process values, so these enforce the
-  # template-wide one-or-two-video transcript limit even if .env asks for more.
-  $env:YOUTUBE_INITIAL_SEARCH_RESULTS = [string](Get-BoundedYoutubeSetting 'YOUTUBE_INITIAL_SEARCH_RESULTS')
-  $env:YOUTUBE_MAX_RESULTS_AFTER_FILTER = [string](Get-BoundedYoutubeSetting 'YOUTUBE_MAX_RESULTS_AFTER_FILTER')
-  $env:YOUTUBE_EXTRACT_TOP_K = [string](Get-BoundedYoutubeSetting 'YOUTUBE_EXTRACT_TOP_K')
+  # Extract transcripts for the top 3-5 videos by view count per search intent.
+  $env:YOUTUBE_EXTRACT_TOP_K = [string](Get-BoundedYoutubeSetting 'YOUTUBE_EXTRACT_TOP_K' -Default 5 -Min 3 -Max 5)
   Invoke-SeoScout @('collect', '--keywords', $KeywordsFile)
 }
 function Invoke-Generate { Invoke-SeoScout @('generate', '--keywords', $KeywordsFile, '--prompt', $GeneratePrompt) }
