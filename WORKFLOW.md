@@ -51,7 +51,7 @@ seoscout/
 └── output/
 ```
 
-首次使用运行 `pnpm seoscout:setup`，然后运行 `pnpm seoscout:health` 验证 Git 来源、固定提交、补丁哈希和虚拟环境。如果检测到旧版、未跟踪或损坏的共享安装，在阶段 B 之前执行 `pnpm seoscout:repair`；异常文件会移入带时间戳的 `backups/` 目录，不会被删除。项目使用本地 Trafilatura 抽取网页正文，不需要 Jina Key。
+API Key 只放在 `D:\Web出海\tools\seoscout\keys.env`，各 Wiki 的 `seoscout/.env` 由 setup 自动填入，不要提交。首次使用运行 `pnpm seoscout:setup`，然后运行 `pnpm seoscout:health` 验证 Git 来源、固定提交、补丁哈希和虚拟环境。如果检测到旧版、未跟踪或损坏的共享安装，在阶段 B 之前执行 `pnpm seoscout:repair`；异常文件会移入带时间戳的 `backups/` 目录，不会被删除。项目使用本地 Trafilatura 抽取网页正文，不需要 Jina Key。
 
 ## 四、生成、翻译与同步
 

@@ -166,3 +166,97 @@ function Assert-SeoScoutInstallation {
 
   Write-Host "Shared SEOScout verification passed at commit $SeoScoutPinnedCommit."
 }
+
+$SeoScoutSharedKeyNames = @('SERPER_API_KEY', 'LLM_API_KEY', 'LLM_API_BASE_URL', 'LLM_MODEL')
+
+function Get-SeoScoutSharedKeysPath {
+  param([string]$SharedPath)
+  return Join-Path $SharedPath 'keys.env'
+}
+
+function Get-DotEnvAssignments {
+  param([string]$Path)
+  $map = @{}
+  if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $map }
+  foreach ($line in Get-Content -LiteralPath $Path) {
+    $trimmed = $line.Trim()
+    if ($trimmed.Length -eq 0 -or $trimmed.StartsWith('#')) { continue }
+    $separator = $trimmed.IndexOf('=')
+    if ($separator -lt 1) { continue }
+    $map[$trimmed.Substring(0, $separator).Trim()] = $trimmed.Substring($separator + 1)
+  }
+  return $map
+}
+
+function Set-DotEnvAssignments {
+  param([string]$Path, [hashtable]$Assignments)
+  if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+    throw "Missing dotenv file: $Path"
+  }
+  $seen = @{}
+  $lines = foreach ($line in Get-Content -LiteralPath $Path) {
+    if ($line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)=') {
+      $name = $Matches[1]
+      if ($Assignments.ContainsKey($name)) {
+        $seen[$name] = $true
+        "$name=$($Assignments[$name])"
+        continue
+      }
+    }
+    $line
+  }
+  $extra = @()
+  foreach ($name in $Assignments.Keys) {
+    if (-not $seen.ContainsKey($name)) {
+      $extra += "$name=$($Assignments[$name])"
+    }
+  }
+  $output = @($lines) + $extra
+  $utf8 = [Text.UTF8Encoding]::new($false)
+  [IO.File]::WriteAllLines($Path, $output, $utf8)
+}
+
+function Test-SeoScoutPlaceholderValue {
+  param([string]$Value)
+  if ([string]::IsNullOrWhiteSpace($Value)) { return $true }
+  return $Value -match '(?i)^your_|_here$'
+}
+
+function Ensure-SeoScoutProjectEnv {
+  param([string]$ProjectRoot, [string]$SharedPath)
+  $projectEnv = Join-Path $ProjectRoot 'seoscout\.env'
+  $example = Join-Path $ProjectRoot 'seoscout\.env.example'
+  $sharedKeys = Get-SeoScoutSharedKeysPath $SharedPath
+
+  if (-not (Test-Path -LiteralPath $projectEnv -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $example -PathType Leaf)) {
+      throw "Missing seoscout/.env.example at $example"
+    }
+    Copy-Item -LiteralPath $example -Destination $projectEnv
+  }
+
+  if (Test-Path -LiteralPath $sharedKeys -PathType Leaf) {
+    $shared = Get-DotEnvAssignments $sharedKeys
+    $apply = @{}
+    foreach ($name in $SeoScoutSharedKeyNames) {
+      if ($shared.ContainsKey($name) -and -not (Test-SeoScoutPlaceholderValue $shared[$name])) {
+        $apply[$name] = $shared[$name]
+      }
+    }
+    if ($apply.Count -gt 0) {
+      Set-DotEnvAssignments -Path $projectEnv -Assignments $apply
+      Write-Host "Applied shared SEOScout keys from $sharedKeys"
+    }
+  }
+
+  $current = Get-DotEnvAssignments $projectEnv
+  $missing = @()
+  foreach ($name in $SeoScoutSharedKeyNames) {
+    if (-not $current.ContainsKey($name) -or (Test-SeoScoutPlaceholderValue $current[$name])) {
+      $missing += $name
+    }
+  }
+  if ($missing.Count -gt 0) {
+    throw "SEOScout keys are not configured ($($missing -join ', ')). Put SERPER_API_KEY, LLM_API_KEY, LLM_API_BASE_URL, and LLM_MODEL in $sharedKeys once; new wikis reuse that file automatically."
+  }
+}

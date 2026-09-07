@@ -32,12 +32,14 @@ The `content/` directory must remain present even when empty because the MDX loa
 
 ## SEOScout
 
-SEOScout is installed once at `D:\Web出海\tools\seoscout`. Each game project keeps only its own keys, prompts, collected data, generated articles, and quality report under `seoscout/`.
+SEOScout is installed once at `D:\Web出海\tools\seoscout`. API keys live once in
+`D:\Web出海\tools\seoscout\keys.env`. Setup copies those values into each project's
+untracked `seoscout/.env`. Project folders keep prompts, collected data, generated
+articles, and quality reports—not the canonical key file.
 
 The shared checkout is pinned to an audited Git commit. Setup records its origin,
 commit, and template-patch hashes; every phase-B run verifies those values before
-executing shared code. Copy `seoscout/.env.example` to `seoscout/.env`, add the
-Serper and OpenAI-compatible LLM keys, then run:
+executing shared code. Then run:
 
 ```bash
 pnpm seoscout:setup

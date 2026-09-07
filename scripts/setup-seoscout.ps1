@@ -172,11 +172,7 @@ Invoke-Checked $VenvPython @('-m', 'pip', 'install', 'yt-dlp>=2024.1.0', 'trafil
 
 Write-SeoScoutProvenance -SharedPath $SharedPath -SourcePath $SourcePath
 
-$ProjectEnv = Join-Path $ProjectRoot 'seoscout\.env'
-if (-not (Test-Path -LiteralPath $ProjectEnv)) {
-  Copy-Item -LiteralPath (Join-Path $ProjectRoot 'seoscout\.env.example') -Destination $ProjectEnv
-  Write-Host 'Created seoscout/.env. Add SERPER_API_KEY and LLM settings before generation.'
-}
+Ensure-SeoScoutProjectEnv -ProjectRoot $ProjectRoot -SharedPath $SharedPath
 
 Assert-SeoScoutInstallation -SharedPath $SharedPath
 Write-Host "Shared SEOScout is ready: $SharedPath"

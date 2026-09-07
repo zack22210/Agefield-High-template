@@ -45,6 +45,14 @@ function Get-ProjectName {
 
 function Invoke-SeoScout {
   param([string[]]$Arguments)
+  $env:PYTHONUTF8 = '1'
+  $env:PYTHONIOENCODING = 'utf-8'
+  $shared = Get-DotEnvAssignments (Get-SeoScoutSharedKeysPath $SharedPath)
+  foreach ($name in $SeoScoutSharedKeyNames) {
+    if ($shared.ContainsKey($name) -and -not (Test-SeoScoutPlaceholderValue $shared[$name])) {
+      Set-Item -Path "Env:$name" -Value $shared[$name]
+    }
+  }
   Invoke-Checked $PythonExe (@($SeoScoutRunner, $SourcePath, $SeoDir) + $Arguments)
 }
 
@@ -100,9 +108,7 @@ if ($Action -eq 'health') {
 }
 
 Assert-SeoScoutInstallation -SharedPath $SharedPath
-if (-not (Test-Path -LiteralPath (Join-Path $SeoDir '.env'))) {
-  throw 'Missing seoscout/.env. Copy .env.example and add the required API keys.'
-}
+Ensure-SeoScoutProjectEnv -ProjectRoot $ProjectRoot -SharedPath $SharedPath
 
 Prepare-Project
 

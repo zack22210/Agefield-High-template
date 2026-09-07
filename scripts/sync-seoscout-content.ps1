@@ -42,7 +42,12 @@ if ($Clean) {
 
 $Copied = 0
 foreach ($File in $Files) {
-  $Relative = [System.IO.Path]::GetRelativePath($Source, $File.FullName)
+  $baseFull = [IO.Path]::GetFullPath($Source).TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
+  $targetFull = [IO.Path]::GetFullPath($File.FullName)
+  if (-not $targetFull.StartsWith($baseFull, [StringComparison]::OrdinalIgnoreCase)) {
+    throw "Refusing to sync a file outside the article directory: $($File.FullName)"
+  }
+  $Relative = $targetFull.Substring($baseFull.Length)
   $Target = Join-Path $Destination $Relative
   New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Target) | Out-Null
   Copy-Item -LiteralPath $File.FullName -Destination $Target -Force
