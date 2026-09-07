@@ -7,33 +7,66 @@ import {JsonLd} from '@/components/JsonLd';
 import {ArticleToc} from '@/components/ArticleToc';
 import {AdsterraFooterBanner} from '@/components/ads/AdsterraFooterBanner';
 import {AdsterraSideBanners} from '@/components/ads/AdsterraSideBanners';
-import {getAllContent, getAllContentPaths, getContent, getContentTypes} from '@/lib/content';
+import {getAllContent, getAllContentGroups, getAllContentPaths, getContent, getContentTypes} from '@/lib/content';
 import {routing} from '@/i18n/routing';
 import {absoluteUrl, SITE_IMAGE_PATH, SITE_LOGO_PATH, SITE_URL} from '@/config/site';
 import {EXTERNAL_LINKS} from '@/config/external-links';
 import {Link} from '@/i18n/navigation';
 import {localePath, localeUrl} from '@/lib/locale-url';
-import {withBuildContext} from '@/lib/server-context';
+import {assertClientSerializable, withBuildContext} from '@/lib/server-context';
+import {HomePageClient} from '../HomePageClient';
 
 type Props = {
-  params: Promise<{locale: string; slug: string[]}>;
+  params: Promise<{locale: string; slug?: string[]}>;
 };
 
 type ReferenceItem = {key: keyof typeof EXTERNAL_LINKS; title: string; meta: string};
 type ContentTypeOverview = {overviewTitle: string; overviewDescription: string};
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return withBuildContext({area: 'content/path', stage: 'generate-static-params'}, async () => {
     const [paths, contentTypes] = await Promise.all([getAllContentPaths('en'), getContentTypes('en')]);
-    const listPaths = contentTypes.map((contentType) => ({
-      slug: [contentType]
-    }));
-    return [...listPaths, ...paths.map((item) => ({slug: item.pathSegments}))];
+    const listPaths = contentTypes.map((contentType) => ({slug: [contentType]}));
+    const articlePaths = paths.map((item) => ({slug: item.pathSegments}));
+    return routing.locales.flatMap((locale) => [
+      {locale, slug: []},
+      ...listPaths.map((entry) => ({locale, ...entry})),
+      ...articlePaths.map((entry) => ({locale, ...entry}))
+    ]);
   });
 }
 
 export async function generateMetadata({params}: Props): Promise<Metadata> {
-  const {locale, slug} = await params;
+  const {locale, slug = []} = await params;
+  if (slug.length === 0) {
+    return withBuildContext({area: 'url/metadata', stage: 'generate-home-metadata', locale, route: '/'}, async () => {
+      const t = await getTranslations({locale});
+      const title = t('seo.homeTitle');
+      const description = t('seo.homeDescription');
+      const url = localeUrl(locale, '/');
+      return {
+        title,
+        description,
+        keywords: t('seo.keywords'),
+        alternates: {canonical: url},
+        openGraph: {
+          type: 'website',
+          url,
+          title,
+          description,
+          images: [{url: absoluteUrl(SITE_IMAGE_PATH), alt: t('media.heroAlt')}]
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title,
+          description,
+          images: [absoluteUrl(SITE_IMAGE_PATH)]
+        }
+      };
+    });
+  }
   const [contentType, ...articlePath] = slug;
   return withBuildContext({
     area: 'url/metadata',
@@ -289,9 +322,45 @@ async function DetailPage({locale, contentType, articleSlug}: {locale: string; c
   );
 }
 
+async function HomePage({locale}: {locale: string}) {
+  return withBuildContext({area: 'locale/data', stage: 'render-home-page', locale, route: '/'}, async () => {
+    const t = await getTranslations({locale});
+    const contentTypeMessages = t.raw('contentTypes') as Record<string, ContentTypeOverview>;
+    const contentGroups = (await getAllContentGroups(locale)).map((group) => ({
+      contentType: group.contentType,
+      label: contentTypeMessages[group.contentType].overviewTitle,
+      overviewDescription: contentTypeMessages[group.contentType].overviewDescription,
+      articles: group.articles.map(({slug, title, description, date, lastModified}) => ({
+        slug,
+        title,
+        description,
+        date,
+        lastModified
+      }))
+    }));
+    assertClientSerializable(contentGroups, {stage: 'serialize-home-content', locale, route: '/'});
+    const website = {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': `${SITE_URL}/#website`,
+      name: t('site.name'),
+      url: localeUrl(locale, '/'),
+      publisher: {'@id': `${SITE_URL}/#organization`}
+    };
+
+    return (
+      <>
+        <JsonLd data={website} context={{locale, route: '/'}} />
+        <HomePageClient groups={contentGroups} />
+      </>
+    );
+  });
+}
+
 export default async function UnifiedContentPage({params}: Props) {
-  const {locale, slug} = await params;
+  const {locale, slug = []} = await params;
   setRequestLocale(locale);
+  if (slug.length === 0) return <HomePage locale={locale} />;
 
   const [contentType, ...articlePath] = slug;
   const articleSlug = articlePath.join('/');

@@ -11,8 +11,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "pnpm validate:prebuild",
-    "build": "next build",
-    "start": "next start",
+    "build": "next build && node scripts/write-static-hosting.mjs",
+    "start": "node scripts/serve-static.mjs",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",

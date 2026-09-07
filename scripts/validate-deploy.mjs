@@ -1,10 +1,11 @@
-import {spawn, spawnSync} from 'node:child_process';
+import {spawnSync} from 'node:child_process';
 import {readFile, readdir, rm} from 'node:fs/promises';
 import net from 'node:net';
 import path from 'node:path';
 import process from 'node:process';
 import {metadataFromMdx, validateIntegrity} from './lib/integrity.mjs';
 import {resolveSiteUrlEnvironment} from '../src/config/site-url.ts';
+import {createStaticServer} from './serve-static.mjs';
 
 const root = process.cwd();
 const runEnvironment = {...process.env, CI: process.env.CI || 'true'};
@@ -49,13 +50,15 @@ function runPnpmStep(label, args) {
   runStep(label, invocation.command, invocation.args);
 }
 
-async function cleanNextOutput(reason) {
-  const nextDirectory = path.resolve(root, '.next');
-  if (path.dirname(nextDirectory) !== path.resolve(root) || path.basename(nextDirectory) !== '.next') {
-    throw new Error(`Refusing to clean unexpected build path: ${nextDirectory}`);
+async function cleanBuildOutput(reason) {
+  for (const directoryName of ['.next', 'out']) {
+    const directory = path.resolve(root, directoryName);
+    if (path.dirname(directory) !== path.resolve(root) || path.basename(directory) !== directoryName) {
+      throw new Error(`Refusing to clean unexpected build path: ${directory}`);
+    }
+    await rm(directory, {recursive: true, force: true});
   }
-  await rm(nextDirectory, {recursive: true, force: true});
-  console.log(`Removed the previous .next build output ${reason}.`);
+  console.log(`Removed the previous .next and out build output ${reason}.`);
 }
 
 async function emptyPort() {
@@ -191,51 +194,42 @@ async function representativePages(origin) {
   return pages;
 }
 
-async function waitForServer(baseUrl, child) {
+async function waitForStaticServer(baseUrl, server) {
   const deadline = Date.now() + 30_000;
   while (Date.now() < deadline) {
-    if (child.exitCode !== null) throw new Error(`Production server exited early with code ${child.exitCode}.`);
+    if (!server.listening) throw new Error('Static server stopped listening before smoke tests started.');
     try {
       const response = await fetch(`${baseUrl}/robots.txt`, {redirect: 'follow'});
       if (response.ok) return;
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error('Production server did not become ready within 30 seconds.');
+  throw new Error('Static server did not become ready within 30 seconds.');
 }
 
-async function stopServer(child) {
-  if (child.exitCode !== null) return;
-  child.kill('SIGTERM');
-  await Promise.race([
-    new Promise((resolve) => child.once('exit', resolve)),
-    new Promise((resolve) => setTimeout(resolve, 5_000))
-  ]);
-  if (child.exitCode === null) child.kill('SIGKILL');
+function stopStaticServer(server) {
+  return new Promise((resolve, reject) => {
+    if (!server.listening) {
+      resolve();
+      return;
+    }
+    server.close((error) => error ? reject(error) : resolve());
+  });
 }
 
 async function smokeTest() {
   const port = await emptyPort();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const nextBin = path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next');
-  let serverOutput = '';
-  const child = spawn(process.execPath, [nextBin, 'start', '-H', '127.0.0.1', '-p', String(port)], {
-    cwd: root,
-    env: runEnvironment,
-    stdio: ['ignore', 'pipe', 'pipe'],
-    windowsHide: true
+  const server = createStaticServer();
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(port, '127.0.0.1', resolve);
   });
-  const append = (chunk) => {
-    serverOutput = `${serverOutput}${chunk}`.slice(-12_000);
-  };
-  child.stdout.on('data', append);
-  child.stderr.on('data', append);
-
-  const terminate = () => child.kill('SIGTERM');
+  const terminate = () => server.close();
   process.once('SIGINT', terminate);
   process.once('SIGTERM', terminate);
   try {
-    await waitForServer(baseUrl, child);
+    await waitForStaticServer(baseUrl, server);
     const origin = resolveSiteUrlEnvironment(runEnvironment).url;
     const pages = await representativePages(origin);
     for (const page of pages) {
@@ -262,13 +256,10 @@ async function smokeTest() {
       if (response.status !== 200 || !verify(body)) throw new Error(`${label} ${resourcePath} failed response validation (HTTP ${response.status}).`);
       console.log(`OK: ${label} ${resourcePath} -> 200, payload verified.`);
     }
-  } catch (error) {
-    if (serverOutput) console.error(`Production server output (redacted):\n${redact(serverOutput)}`);
-    throw error;
   } finally {
     process.removeListener('SIGINT', terminate);
     process.removeListener('SIGTERM', terminate);
-    await stopServer(child);
+    await stopStaticServer(server);
   }
 }
 
@@ -280,18 +271,19 @@ try {
     '--config.confirm-modules-purge=false',
     'install', '--frozen-lockfile', '--offline', '--reporter=append-only'
   ]);
-  await cleanNextOutput('before local checks');
+  await cleanBuildOutput('before local checks');
   runPnpmStep('Regression tests', ['test']);
   runPnpmStep('TypeScript', ['typecheck']);
   runPnpmStep('Locale, content, route, metadata, and asset integrity', ['validate:integrity']);
 
   console.log('\n== Clean production build ==');
-  await cleanNextOutput('before production build');
+  await cleanBuildOutput('before production build');
   runStep('Next.js production build', process.execPath, [path.join(root, 'node_modules', 'next', 'dist', 'bin', 'next'), 'build']);
+  runStep('Static hosting redirects', process.execPath, [path.join(root, 'scripts', 'write-static-hosting.mjs')]);
 
   console.log('\n== Production HTTP smoke tests ==');
   await smokeTest();
-  console.log('\nDeployment validation passed. The production server was stopped cleanly.');
+  console.log('\nDeployment validation passed. The static export was smoke-tested and the local server was stopped cleanly.');
 } catch (error) {
   console.error(`\nDEPLOYMENT VALIDATION FAILED: ${redact(error instanceof Error ? error.message : error)}`);
   process.exitCode = 1;

@@ -37,7 +37,6 @@ export function LanguageSwitcher({className}: {className?: string}) {
     setOpen(false);
     trigger.current?.focus();
     if (nextLocale === locale) return;
-    document.cookie = `NEXT_LOCALE=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
     router.replace(`${pathname}${window.location.search}${window.location.hash}`, {locale: nextLocale});
   }
 

@@ -1,6 +1,8 @@
 import type {MetadataRoute} from 'next';
 import en from '@/locales/en.json';
 
+export const dynamic = 'force-static';
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: en.site.name,

@@ -13,7 +13,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'md', 'mdx'],
   reactStrictMode: true,
-  poweredByHeader: false
+  poweredByHeader: false,
+  output: 'export',
+  images: {
+    unoptimized: true
+  }
 };
 
 export default withNextIntl(withMDX(nextConfig));

@@ -74,4 +74,4 @@ pnpm validate:links
 pnpm validate:deploy
 ```
 
-检查环境变量与固定工具链、真实素材、SEO 长度、MDX metadata、来源链接、语言路径一致性、旧游戏残留、导航与分类一致性、TypeScript、生产构建和生产服务器 HTTP 冒烟测试。模板保留广告位置，不配置远程部署。
+检查环境变量与固定工具链、真实素材、SEO 长度、MDX metadata、来源链接、语言路径一致性、旧游戏残留、导航与分类一致性、TypeScript、静态导出构建和本地静态文件 HTTP 冒烟测试。模板保留广告位置，不配置远程部署。

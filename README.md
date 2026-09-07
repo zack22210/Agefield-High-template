@@ -60,8 +60,8 @@ For each search intent, YouTube transcript collection is capped at the first one
 pnpm validate:deploy
 ```
 
-This checks the environment and pinned toolchain, verifies the frozen lockfile installation, runs regression tests and TypeScript, validates locale/MDX/navigation/image/link/metadata integrity, removes stale `.next` output, builds in production mode, starts `next start`, and performs HTTP smoke tests. The server is always stopped afterward.
+This checks the environment and pinned toolchain, verifies the frozen lockfile installation, runs regression tests and TypeScript, validates locale/MDX/navigation/image/link/metadata integrity, removes stale `.next` and `out` output, builds a fully static export, and performs HTTP smoke tests against the generated files. The local static server is always stopped afterward.
 
-The blank template has no articles or non-English locale, so article/category smoke tests are reported as not applicable. Once content is configured, `/en/guide`, an English article, and representative non-English category/article routes become mandatory automatically. Public routes always include a locale prefix (`/en`, `/es`, and so on); `/` redirects once to the default locale.
+The blank template has no articles or non-English locale, so article/category smoke tests are reported as not applicable. Once content is configured, `/en/guide`, an English article, and representative non-English category/article routes become mandatory automatically. Public routes always include a locale prefix (`/en`, `/es`, and so on); `/` redirects once to the default locale. `pnpm start` serves the `out/` directory. Static hosts can upload `out/` as-is; the build also writes `out/_redirects` for unprefixed fallbacks. Do not add Vercel, Cloudflare, or other remote deployment configuration in this repository.
 
 No secret is currently required to build the public wiki. `NEXT_PUBLIC_SITE_URL` is the only recommended deployment variable; SEOScout API keys are generation-time inputs and are not required by `pnpm build`.

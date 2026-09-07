@@ -5,6 +5,8 @@ import {routing} from '@/i18n/routing';
 import {absoluteUrl} from '@/config/site';
 import {withBuildContext} from '@/lib/server-context';
 
+export const dynamic = 'force-static';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return withBuildContext({area: 'url/metadata', stage: 'generate-sitemap', route: '/sitemap.xml'}, async () => {
     const contentPaths = await getAllContentPaths('en');
