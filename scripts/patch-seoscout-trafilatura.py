@@ -260,6 +260,138 @@ async def run_collect(project: str):
     else:
         print(f"YouTube view-count transcript ranking already applied: {collect_file}")
 
+    if "apply_source_policy" not in collect_text:
+        policy_helper = '''def apply_source_policy(data, results_path):
+    policy_path = os.path.join(os.getcwd(), "source-policy.json")
+    if not os.path.isfile(policy_path):
+        return
+    policy = load_json(policy_path)
+    official = {(value or "").lower().removeprefix("www.") for value in policy.get("official_domains", [])}
+    trusted = {(value or "").lower().removeprefix("www.") for value in policy.get("trusted_domains", [])}
+    blocked = {(value or "").lower().removeprefix("www.") for value in policy.get("blocked_domains", [])}
+
+    def hostname(value):
+        text = (value or "").split("://", 1)[-1].split("/", 1)[0].split("?", 1)[0]
+        return text.split(":", 1)[0].lower().removeprefix("www.")
+
+    def matches(host, domains):
+        return any(host == domain or host.endswith(f".{domain}") for domain in domains)
+
+    def score(item):
+        host = hostname(item.get("url", item.get("domain", "")))
+        if matches(host, official):
+            return 100
+        if matches(host, trusted):
+            return 70
+        url = item.get("url", "")
+        if url.startswith("https://"):
+            return 30
+        if url.startswith("http://"):
+            return 20
+        return 0
+
+    for entry in data.get("keywords", []):
+        items = entry.setdefault("web", {}).setdefault("items", [])
+        allowed = []
+        for item in items:
+            host = hostname(item.get("url", item.get("domain", "")))
+            item["selected"] = False
+            if matches(host, blocked):
+                item["blocked_by_policy"] = True
+            else:
+                item.pop("blocked_by_policy", None)
+                allowed.append(item)
+        allowed.sort(key=score, reverse=True)
+        for item in allowed[:2]:
+            item["selected"] = True
+        items.sort(key=lambda item: (not item.get("selected", False), -score(item)))
+        entry["web"]["count"] = len(items)
+    save_json(data, results_path)
+
+
+async def run_collect(project: str):
+'''
+        collect_text = replace_once(
+            collect_text,
+            "async def run_collect(project: str):\n",
+            policy_helper,
+            "source-policy helper",
+        )
+        collect_text = replace_once(
+            collect_text,
+            '        print(f"Run `seoscout search` first")\n        return\n\n    yt_items_by_keyword = {}\n',
+            '        print(f"Run `seoscout search` first")\n        return\n\n    apply_source_policy(data, input_file)\n\n    yt_items_by_keyword = {}\n',
+            "apply source policy after search results load",
+        )
+        collect_file.write_text(collect_text, encoding="utf-8")
+        print(f"Collect now applies source-policy.json during seoscout run: {collect_file}")
+    else:
+        print(f"Source-policy filtering already applied: {collect_file}")
+
+    cli_file = args.source / "seoscout" / "cli.py"
+    cli_text = cli_file.read_text(encoding="utf-8")
+    if "prompts/generate.md" not in cli_text:
+        cli_text = replace_once(
+            cli_text,
+            """    await run_search(args.project, args.keywords)
+    await run_collect(args.project)
+    await run_generate(
+        args.project,
+        args.keywords,
+        prompt_path=args.prompt,
+        overwrite=args.overwrite,
+    )
+
+    # If languages are specified in JSON, auto-translate
+    langs = load_languages_from_json(args.keywords)
+    if langs:
+        lang_str = ",".join(langs)
+        print(f"\\n{'='*70}")
+        print(f"  Step 4: Translate [{args.project}] → {lang_str}")
+        print(f"{'='*70}")
+        await run_translate(
+            args.project,
+            lang_str,
+            prompt_path=None,
+            overwrite=args.overwrite,
+        )
+""",
+            """    generate_prompt = args.prompt or (
+        "prompts/generate.md" if os.path.isfile("prompts/generate.md") else None
+    )
+    translate_prompt = "prompts/translate.md" if os.path.isfile("prompts/translate.md") else None
+
+    await run_search(args.project, args.keywords)
+    await run_collect(args.project)
+    await run_generate(
+        args.project,
+        args.keywords,
+        prompt_path=generate_prompt,
+        overwrite=args.overwrite,
+    )
+
+    # If languages are specified in JSON, auto-translate
+    langs = load_languages_from_json(args.keywords)
+    if langs:
+        lang_str = ",".join(langs)
+        print(f"\\n{'='*70}")
+        print(f"  Step 4: Translate [{args.project}] → {lang_str}")
+        print(f"{'='*70}")
+        await run_translate(
+            args.project,
+            lang_str,
+            prompt_path=translate_prompt,
+            overwrite=args.overwrite,
+        )
+""",
+            "run command project prompts",
+        )
+        cli_file.write_text(cli_text, encoding="utf-8")
+        print(f"seoscout run now loads project prompts automatically: {cli_file}")
+    else:
+        print(f"Project prompt autoload already applied: {cli_file}")
+
 
 if __name__ == "__main__":
     main()
+

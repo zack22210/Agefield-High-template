@@ -25,7 +25,7 @@ New-game research, verification, editing, and validation are handled by Codex wi
 3. Replace placeholder identity, verified links, theme, favicon, Hero, optional Story media, and legal/SEO data.
 4. Paste manually collected keywords into `站点数据采集目录/原始关键词.txt`.
 5. Save the reviewed categories to `站点数据采集目录/关键词分类.json`.
-6. Run `pnpm research:prepare` and `pnpm seoscout:run`.
+6. Run `pnpm seoscout:run`.
 7. Synchronize navigation and locales, then run `pnpm validate:links` and `pnpm validate:deploy`.
 
 The `content/` directory must remain present even when empty because the MDX loader scans it during compilation.
@@ -33,17 +33,20 @@ The `content/` directory must remain present even when empty because the MDX loa
 ## SEOScout
 
 SEOScout is installed once at `D:\Web出海\tools\seoscout`. API keys live once in
-`D:\Web出海\tools\seoscout\keys.env`. Setup copies those values into each project's
-untracked `seoscout/.env`. Project folders keep prompts, collected data, generated
-articles, and quality reports—not the canonical key file.
+`D:\Web出海\tools\seoscout\keys.env`. Each run copies those values into the project's
+untracked `seoscout/.env`. After a game is researched, `pnpm seoscout:run` is enough:
+it prepares keywords, fills the generate prompt and official domains, then runs
+`seoscout run --keywords keywords.json`.
 
-The shared checkout is pinned to an audited Git commit. Setup records its origin,
-commit, and template-patch hashes; every phase-B run verifies those values before
-executing shared code. Then run:
+The shared checkout is pinned to an audited Git commit. First-time install:
 
 ```bash
 pnpm seoscout:setup
-pnpm seoscout:health
+```
+
+Later sites only need:
+
+```bash
 pnpm seoscout:run
 ```
 

@@ -1,6 +1,7 @@
 $SeoScoutRepository = 'https://github.com/libin257/seoscout.git'
 $SeoScoutPinnedCommit = 'ee41d06b28ae89179c48a99487089bff2add7341'
 $SeoScoutPatchedFiles = @(
+  'seoscout/cli.py',
   'seoscout/core/web.py',
   'seoscout/core/config.py',
   'seoscout/translate.py',
@@ -8,11 +9,12 @@ $SeoScoutPatchedFiles = @(
   'seoscout/collect.py'
 )
 $SeoScoutExpectedPatchHashes = @{
+  'seoscout/cli.py' = '5b9209bcddcc5020a60a6ffd02504358edad3ebae2afb98acdc67fad8c6dbd9e'
   'seoscout/core/web.py' = 'b28ff6db8540c212a760b1b57d817f23e56924a11b0f925b1d8cdf64c6c89bbd'
   'seoscout/core/config.py' = '398ee6a237475397447c77759afb091600b5b29639f0bebb042dfdfdb1639646'
   'seoscout/translate.py' = 'bbf6d5fbbe024079d9f1efd7056fc3a3ade3c7784c26c118a95ceff908a02686'
   'seoscout/core/youtube.py' = 'a55652d87129e663848c96c6371b013008d6886773756782c35e9a11bdb35669'
-  'seoscout/collect.py' = 'ade6f559e1309e16986fc68b4f0576428fcb1ef3be799e4c16536b5b32db5bb6'
+  'seoscout/collect.py' = 'de285d1a49ddef86c9d0d82110104601325fe4b0966a6d4e9497f5f1f8cdc6ed'
 }
 
 function Get-DefaultSeoScoutSharedPath {

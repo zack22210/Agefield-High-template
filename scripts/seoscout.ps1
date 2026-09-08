@@ -1,7 +1,7 @@
 param(
   [Parameter(Position = 0)]
-  [ValidateSet('setup', 'repair', 'health', 'search', 'collect', 'generate', 'translate', 'publish')]
-  [string]$Action = 'publish',
+  [ValidateSet('setup', 'repair', 'health', 'search', 'collect', 'generate', 'translate', 'publish', 'run')]
+  [string]$Action = 'run',
   [string]$SharedPath = $env:SEOSCOUT_SHARED_PATH
 )
 
@@ -34,7 +34,7 @@ function Prepare-Project {
   Invoke-Checked node @((Join-Path $PSScriptRoot 'prepare-seoscout.mjs'))
   $prompt = Get-Content -LiteralPath (Join-Path $SeoDir $GeneratePrompt) -Raw
   if ($prompt.Contains('GAME_NAME_TO_REPLACE') -or $prompt.Contains('OFFICIAL_GAME_URL_TO_REPLACE')) {
-    throw 'Replace the game name and official game URL placeholders in seoscout/prompts/generate.md before generation.'
+    throw 'seoscout/prompts/generate.md still has placeholders. Fill 站点数据采集目录/基础信息.md, then rerun.'
   }
 }
 
@@ -67,10 +67,15 @@ function Get-BoundedYoutubeSetting {
   return [Math]::Max($Min, [Math]::Min($Max, $value))
 }
 
-function Invoke-Search {
-  # Search a larger pool so collect can rank by view count, then take the top 3-5.
+function Apply-YoutubeBounds {
+  # Search 5-10 videos per intent, then collect transcripts for the top 3-5 by view count.
   $env:YOUTUBE_INITIAL_SEARCH_RESULTS = [string](Get-BoundedYoutubeSetting 'YOUTUBE_INITIAL_SEARCH_RESULTS' -Default 8 -Min 5 -Max 10)
   $env:YOUTUBE_MAX_RESULTS_AFTER_FILTER = [string](Get-BoundedYoutubeSetting 'YOUTUBE_MAX_RESULTS_AFTER_FILTER' -Default 8 -Min 5 -Max 10)
+  $env:YOUTUBE_EXTRACT_TOP_K = [string](Get-BoundedYoutubeSetting 'YOUTUBE_EXTRACT_TOP_K' -Default 5 -Min 3 -Max 5)
+}
+
+function Invoke-Search {
+  Apply-YoutubeBounds
   Invoke-SeoScout @('search', '--keywords', $KeywordsFile)
   $project = Get-ProjectName
   $results = Join-Path $SeoDir "output\$project\out\search_results.json"
@@ -80,8 +85,7 @@ function Invoke-Search {
 }
 
 function Invoke-Collect {
-  # Extract transcripts for the top 3-5 videos by view count per search intent.
-  $env:YOUTUBE_EXTRACT_TOP_K = [string](Get-BoundedYoutubeSetting 'YOUTUBE_EXTRACT_TOP_K' -Default 5 -Min 3 -Max 5)
+  Apply-YoutubeBounds
   Invoke-SeoScout @('collect', '--keywords', $KeywordsFile)
 }
 function Invoke-Generate { Invoke-SeoScout @('generate', '--keywords', $KeywordsFile, '--prompt', $GeneratePrompt) }
@@ -92,6 +96,11 @@ function Invoke-Translate {
   } else {
     Write-Host 'No non-English languages configured; skipping translation.'
   }
+}
+
+function Invoke-Run {
+  Apply-YoutubeBounds
+  Invoke-SeoScout @('run', '--keywords', $KeywordsFile)
 }
 
 if ($Action -eq 'setup') {
@@ -117,11 +126,8 @@ switch ($Action) {
   'collect' { Invoke-Collect }
   'generate' { Invoke-Generate }
   'translate' { Invoke-Translate }
-  'publish' {
-    Invoke-Search
-    Invoke-Collect
-    Invoke-Generate
-    Invoke-Translate
+  { $_ -in @('publish', 'run') } {
+    Invoke-Run
 
     $validator = Join-Path $PSScriptRoot 'validate-wiki.mjs'
     Invoke-Checked node @($validator, '--seoscout', '--quarantine') -AllowFailure

@@ -26,7 +26,7 @@
     "seoscout:collect": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 collect",
     "seoscout:generate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 generate",
     "seoscout:translate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 translate",
-    "seoscout:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 publish",
+    "seoscout:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/seoscout.ps1 run",
     "seoscout:sync": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/sync-seoscout-content.ps1",
     "validate:content": "node scripts/validate-wiki.mjs --content",
     "validate:assets": "node scripts/validate-assets.mjs",

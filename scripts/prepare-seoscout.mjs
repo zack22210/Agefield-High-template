@@ -7,7 +7,10 @@ const requirementsDir = path.join(root, '站点数据采集目录');
 const categoriesPath = path.join(requirementsDir, '关键词分类.json');
 const languagesPath = path.join(requirementsDir, 'languages.json');
 const outputPath = path.join(root, 'seoscout', 'keywords.json');
+const generatePromptPath = path.join(root, 'seoscout', 'prompts', 'generate.md');
+const policyPath = path.join(root, 'seoscout', 'source-policy.json');
 const riskyIntent = /\b(script|scripts|hack|hacks|exploit|exploits|executor|injector|injection|pastebin|auto\s*(farm|quest|egg|eggs|click|grind)|no\s*key|keyless|inf(?:inite)?\s*(money|coins|gems)|dupe|cheat|cheats)\b/i;
+const unfinishedValue = /^(待填写|待研究|待核验|暂无|未核验)?$/;
 
 function fail(message) {
   console.error(`ERROR: ${message}`);
@@ -20,6 +23,57 @@ async function loadJson(file) {
   } catch (error) {
     throw new Error(`${file}: ${error.message}`);
   }
+}
+
+function hostnameFromUrl(value) {
+  try {
+    return new URL(value).hostname.toLowerCase().replace(/^www\./, '');
+  } catch {
+    return '';
+  }
+}
+
+function domainMatches(host, domains) {
+  return domains.some((domain) => host === domain || host.endsWith(`.${domain}`));
+}
+
+async function applyProjectSeoScoutConfig() {
+  const basicInfo = await readFile(path.join(requirementsDir, '基础信息.md'), 'utf8');
+  const gameName = (basicInfo.match(/^> 游戏名称：[ \t]*(.*)$/m)?.[1] ?? '').trim();
+  const officialUrl = (basicInfo.match(/^> 官方网站：[ \t]*(.*)$/m)?.[1] ?? '').trim();
+  if (!gameName || unfinishedValue.test(gameName)) {
+    fail('基础信息.md 的游戏名称不能为空。准备 SEOScout 前先完成阶段 A。');
+    return;
+  }
+  if (!/^https?:\/\//i.test(officialUrl) || unfinishedValue.test(officialUrl)) {
+    fail('基础信息.md 必须包含可访问的官方网站 URL。准备 SEOScout 前先完成阶段 A。');
+    return;
+  }
+
+  let prompt = await readFile(generatePromptPath, 'utf8');
+  if (prompt.includes('GAME_NAME_TO_REPLACE') || prompt.includes('OFFICIAL_GAME_URL_TO_REPLACE')) {
+    prompt = prompt.replaceAll('GAME_NAME_TO_REPLACE', gameName).replaceAll('OFFICIAL_GAME_URL_TO_REPLACE', officialUrl);
+    await writeFile(generatePromptPath, prompt, 'utf8');
+    console.log(`Filled seoscout/prompts/generate.md for ${gameName}.`);
+  }
+
+  const policy = await loadJson(policyPath);
+  const blocked = (policy.blocked_domains ?? []).map((domain) => String(domain).toLowerCase().replace(/^www\./, ''));
+  const urls = [
+    officialUrl,
+    ...[...basicInfo.matchAll(/https?:\/\/[^\s)|\]>"'`]+/gi)].map((match) => match[0].replace(/[.,;]+$/g, ''))
+  ];
+  const official = [];
+  const seen = new Set();
+  for (const url of urls) {
+    const host = hostnameFromUrl(url);
+    if (!host || seen.has(host) || domainMatches(host, blocked)) continue;
+    seen.add(host);
+    official.push(host);
+  }
+  policy.official_domains = official;
+  await writeFile(policyPath, `${JSON.stringify(policy, null, 2)}\n`, 'utf8');
+  console.log(`Updated seoscout/source-policy.json with ${official.length} official domain(s).`);
 }
 
 const categoriesData = await loadJson(categoriesPath);
@@ -80,6 +134,9 @@ const normalized = {
     keywords: item.keywords.map((keyword) => String(keyword).trim().toLowerCase())
   }))
 };
+
+await applyProjectSeoScoutConfig();
+if (process.exitCode) process.exit();
 
 await writeFile(outputPath, `${JSON.stringify(normalized, null, 2)}\n`, 'utf8');
 console.log(`Prepared seoscout/keywords.json: ${keywordCount} keywords, ${categories.length} categories, ${languageCodes.length} locales.`);

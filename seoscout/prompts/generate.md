@@ -1,5 +1,6 @@
 <!--
-Before running, replace GAME_NAME_TO_REPLACE and OFFICIAL_GAME_URL_TO_REPLACE.
+GAME_NAME_TO_REPLACE and OFFICIAL_GAME_URL_TO_REPLACE are filled automatically
+from 站点数据采集目录/基础信息.md by `pnpm research:prepare` / `pnpm seoscout:run`.
 Variables injected by SEOScout:
 - {merged_data}: collected YouTube transcripts and web content as JSON
 - {current_date}: generation date
