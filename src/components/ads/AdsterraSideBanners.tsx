@@ -3,33 +3,37 @@
 import {useEffect, useState} from 'react';
 import {X} from 'lucide-react';
 import {AdBanner} from '@/components/ads/AdsterraBanner';
-import {ADSTERRA_ADS} from '@/config/ads';
+import {getBannerConfig} from '@/lib/ad-config';
 
 type Side = 'left' | 'right';
 
-function DismissibleSideBanner({adKey, side}: {adKey: string; side: Side}) {
+const SHELL_MAX_WIDTH = 1320;
+const BANNER_WIDTH = 160;
+const GUTTER = 8;
+const MIN_VIEWPORT = SHELL_MAX_WIDTH + (BANNER_WIDTH + GUTTER) * 2;
+
+function DismissibleSideBanner({side}: {side: Side}) {
   const [dismissed, setDismissed] = useState(false);
 
-  if (dismissed || !adKey.trim()) return null;
-
-  const position = side === 'left'
-    ? {left: 'max(0px, calc(50% - 876px))'}
-    : {right: 'max(0px, calc(50% - 876px))'};
+  if (dismissed || !getBannerConfig('160x300')) return null;
 
   return (
     <aside
-      className="absolute inset-y-0 hidden w-[160px] pt-48 min-[1760px]:block"
-      style={position}
+      className={`absolute inset-y-0 hidden w-[160px] pt-48 min-[1640px]:block ${
+        side === 'left' ? 'left-2' : 'right-2'
+      }`}
       aria-label="Advertisement"
     >
       <div className="sticky top-20 z-20 py-2">
         <div className="relative">
-          <AdBanner type="banner-160x300" adKey={adKey} eager />
+          <AdBanner type="banner-160x300" eager />
           <button
             type="button"
             aria-label="关闭广告"
             onClick={() => setDismissed(true)}
-            className="absolute right-0 top-0 z-10 flex size-8 items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className={`absolute top-0 z-10 flex size-8 items-center justify-center rounded-full bg-slate-900 text-white shadow-md transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 ${
+              side === 'left' ? 'left-0' : 'right-0'
+            }`}
           >
             <X className="size-4" aria-hidden="true" />
           </button>
@@ -41,10 +45,10 @@ function DismissibleSideBanner({adKey, side}: {adKey: string; side: Side}) {
 
 export function AdsterraSideBanners() {
   const [isWideDesktop, setIsWideDesktop] = useState(false);
-  const adKey = ADSTERRA_ADS.banner160x300;
+  const hasSidebarAd = Boolean(getBannerConfig('160x300'));
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 1760px)');
+    const mediaQuery = window.matchMedia(`(min-width: ${MIN_VIEWPORT}px)`);
     const updateVisibility = () => setIsWideDesktop(mediaQuery.matches);
 
     updateVisibility();
@@ -53,12 +57,12 @@ export function AdsterraSideBanners() {
     return () => mediaQuery.removeEventListener('change', updateVisibility);
   }, []);
 
-  if (!isWideDesktop || !adKey) return null;
+  if (!isWideDesktop || !hasSidebarAd) return null;
 
   return (
     <>
-      <DismissibleSideBanner adKey={adKey} side="left" />
-      <DismissibleSideBanner adKey={adKey} side="right" />
+      <DismissibleSideBanner side="left" />
+      <DismissibleSideBanner side="right" />
     </>
   );
 }

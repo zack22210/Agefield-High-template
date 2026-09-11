@@ -3,13 +3,12 @@
 import {useState} from 'react';
 import {X} from 'lucide-react';
 import {AdBanner} from '@/components/ads/AdsterraBanner';
-import {ADSTERRA_ADS} from '@/config/ads';
+import {getBannerConfig} from '@/lib/ad-config';
 
 export function AdsterraBottomBanner() {
   const [dismissed, setDismissed] = useState(false);
-  const adKey = ADSTERRA_ADS.banner320x50;
 
-  if (dismissed || !adKey) return null;
+  if (dismissed || !getBannerConfig('320x50')) return null;
 
   return (
     <>
@@ -17,7 +16,7 @@ export function AdsterraBottomBanner() {
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-50 py-2">
         <div className="mx-auto max-w-4xl">
           <div className="pointer-events-auto relative mx-auto w-fit max-w-full">
-            <AdBanner type="banner-320x50" adKey={adKey} eager />
+            <AdBanner type="banner-320x50" eager />
             <button
               type="button"
               aria-label="关闭广告"

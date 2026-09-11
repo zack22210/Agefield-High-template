@@ -9,9 +9,10 @@
     "pnpm": "11.10.0"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "pnpm ads:sync && next dev --turbopack",
     "prebuild": "pnpm validate:prebuild",
-    "build": "next build && node scripts/write-static-hosting.mjs",
+    "build": "pnpm ads:sync && next build && node scripts/write-static-hosting.mjs",
+    "ads:sync": "node scripts/sync-ad-html.mjs",
     "start": "node scripts/serve-static.mjs",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

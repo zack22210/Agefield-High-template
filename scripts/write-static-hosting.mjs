@@ -1,4 +1,4 @@
-import {readdir, readFile, writeFile} from 'node:fs/promises';
+import {copyFile, readdir, readFile, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 
 const root = process.cwd();
@@ -55,3 +55,6 @@ const lines = [
 const outputPath = path.join(root, 'out', '_redirects');
 await writeFile(outputPath, lines.join('\n'), 'utf8');
 console.log(`Wrote ${routes.length} static-hosting redirects to out/_redirects.`);
+
+await copyFile(path.join(root, 'public', '_headers'), path.join(root, 'out', '_headers'));
+console.log('Copied public/_headers to out/_headers.');

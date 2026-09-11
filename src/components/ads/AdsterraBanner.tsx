@@ -1,60 +1,55 @@
-type AdsterraBannerSize =
-  | '160x300'
-  | '160x600'
-  | '300x250'
-  | '320x50'
-  | '468x60'
-  | '728x90';
+import { type BannerFormat, getBannerConfig } from "@/lib/ad-config";
 
-type AdsterraBannerProps = {
-  adKey?: string;
-  size: AdsterraBannerSize;
-  title?: string;
-};
+type BannerType = `banner-${BannerFormat}`;
 
-type AdBannerProps = {
+export interface AdBannerProps {
+  format?: BannerFormat;
+  type?: BannerType;
   adKey?: string;
   eager?: boolean;
   title?: string;
-  type: `banner-${AdsterraBannerSize}`;
+  className?: string;
+}
+
+type AdsterraBannerProps = {
+  adKey?: string;
+  size: BannerFormat;
+  title?: string;
 };
 
-const bannerDimensions: Record<AdsterraBannerSize, {width: number; height: number}> = {
-  '160x300': {width: 160, height: 300},
-  '160x600': {width: 160, height: 600},
-  '300x250': {width: 300, height: 250},
-  '320x50': {width: 320, height: 50},
-  '468x60': {width: 468, height: 60},
-  '728x90': {width: 728, height: 90},
-};
+function resolveFormat(format?: BannerFormat, type?: BannerType): BannerFormat | null {
+  if (format) return format;
+  if (type?.startsWith("banner-")) return type.slice("banner-".length) as BannerFormat;
+  return null;
+}
 
-export function AdBanner({adKey, eager = false, title = 'Advertisement', type}: AdBannerProps) {
-  if (!adKey?.trim()) return null;
+export function AdBanner({ format, type, eager = true, title = "Advertisement", className = "" }: AdBannerProps) {
+  const resolvedFormat = resolveFormat(format, type);
+  if (!resolvedFormat) return null;
 
-  const size = type.replace('banner-', '') as AdsterraBannerSize;
-  const {width, height} = bannerDimensions[size];
+  const config = getBannerConfig(resolvedFormat);
+  if (!config) return null;
 
   return (
-    <div className="flex w-full justify-center overflow-hidden">
+    <div className={`flex w-full justify-center overflow-hidden ${className}`}>
       <iframe
-        src={`/ads/banner-${size}.html?key=${encodeURIComponent(adKey.trim())}`}
-        title={title}
-        width={width}
-        height={height}
+        src={config.htmlPath}
+        title={`${title} ${resolvedFormat}`}
+        width={config.width}
+        height={config.height}
         scrolling="no"
-        loading={eager ? 'eager' : 'lazy'}
-        style={{border: 'none'}}
+        loading={eager ? "eager" : "lazy"}
+        referrerPolicy="no-referrer-when-downgrade"
+        style={{ border: "none" }}
       />
     </div>
   );
 }
 
-export function AdsterraBanner({adKey, size, title}: AdsterraBannerProps) {
-  if (!adKey?.trim()) return null;
-
+export function AdsterraBanner({ size, title }: AdsterraBannerProps) {
   return (
     <div className="mt-[42px]">
-      <AdBanner adKey={adKey} type={`banner-${size}`} title={title} />
+      <AdBanner format={size} title={title} />
     </div>
   );
 }

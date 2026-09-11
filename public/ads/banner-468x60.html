@@ -1,24 +1,10 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Advertisement 468x60</title>
-    <style>html,body{width:468px;height:60px;margin:0;overflow:hidden;background:transparent}</style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>html, body { margin: 0; padding: 0; overflow: hidden; }</style>
   </head>
   <body>
-    <script>
-      var atOptions = {
-        key: new URLSearchParams(location.search).get('key')?.trim() || '',
-        format: 'iframe',
-        height: 60,
-        width: 468,
-        params: {}
-      };
-
-      if (atOptions.key) {
-        document.write('<script src="https://www.highperformanceformat.com/' + atOptions.key + '/invoke.js"><\/script>');
-      }
-    </script>
   </body>
 </html>

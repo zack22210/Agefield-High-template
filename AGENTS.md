@@ -41,6 +41,7 @@
 - SEOScout 为每个搜索意图采集 YouTube 字幕时，按播放量取前 3–5 个视频，不得为同一意图再加采更多字幕。
 - 一份 MDX 对应一个独立搜索意图，标题和正文自然覆盖关键词，不机械堆词。
 - 广告保留现有位置，待用户配置广告 Key 后再评估密度。
+- Adsterra KEY 写入 `.env.local` 的 `NEXT_PUBLIC_AD_*`，运行 `pnpm ads:sync`（`dev`/`build` 会自动执行）。不要提交 `.env.local`。模板里 KEY 留空。详见 `public/ads/README.md`。
 - 只保证本地构建和验证通过，不配置 Vercel、Cloudflare、Docker 或其他远程部署。
 
 ## 真相源与命令
